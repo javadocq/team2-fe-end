@@ -1,4 +1,4 @@
-# backend
+# frontend
 
 하이톤 2팀 프론트입니다
 
