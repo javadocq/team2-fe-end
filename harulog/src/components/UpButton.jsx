@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import SmileImage from "../assets/smile.png";
 import axios from "axios";
 
 const UpButton = ({
