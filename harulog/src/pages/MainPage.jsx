@@ -1,32 +1,57 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
-import LogoImage from "../assets/LogoImage.png";
-import WriteButtonImage from "../assets/WriteButtonImage.png";
+import WriteButtonImage from "../assets/icon_writebutton.svg";
 import CardBGImage from "../assets/CardBGImage.png";
-import CommunicationImage from "../assets/keywordsImage/CommunicationImage.png";
-import ThanksImage from "../assets/keywordsImage/ThanksImage.png";
-import RelaxImage from "../assets/keywordsImage/RelaxImage.png";
-import AchievementImage from "../assets/keywordsImage/AchievementImage.png";
-import ChallengeImage from "../assets/keywordsImage/ChallengeImage.png";
-import EmotionImage from "../assets/keywordsImage/EmotionImage.png";
-import SmileImage from "../assets/SmileImage.png";
+import CommunicationImage from "../assets/icon_communication.svg";
+import ThanksImage from "../assets/icon_thanks.svg";
+import RelaxImage from "../assets/icon_relax.svg";
+import AchievementImage from "../assets/icon_achievement.svg";
+import ChallengeImage from "../assets/icon_challenge.svg";
+import EmotionImage from "../assets/icon_emotion.svg";
+import Nav from "../components/Nav";
+import SmileImage from "../assets/icon_smile.svg";
 import mockData from "../mocks/mockData.json";
 import { useQuery } from "@tanstack/react-query";
 
 const MainPage = () => {
   const navigate = useNavigate();
-
+  const [isKeywordFixed, setIsKeywordFixed] = useState(false);
   const [selectedKeyword, setSelectedKeyword] = useState(null);
-  
+  const [searchContent, setSearchContent] = useState("");
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const keywordSection = document.getElementById("keyword-section");
+      if (keywordSection) {
+        const keywordPosition = keywordSection.offsetTop;
+        const scrollPosition = window.scrollY + 80; // 헤더 높이만큼 더해줌
+        setIsKeywordFixed(scrollPosition > keywordPosition);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   // 키워드 배열
   const keywords = [
-    { id: 1, keyword : "communication", keywordName: "소통", image: CommunicationImage },
-    { id: 2, keyword : "thanks", keywordName: "감사", image: ThanksImage },
-    { id: 3, keyword : "relax", keywordName: "휴식", image: RelaxImage },
-    { id: 4, keyword : "achievement", keywordName: "성취", image: AchievementImage },
-    { id: 5, keyword : "challenge", keywordName: "도전", image: ChallengeImage },
-    { id: 6, keyword : "emotion", keywordName: "감정", image: EmotionImage },
+    {
+      id: 1,
+      keyword: "communication",
+      keywordName: "소통",
+      image: CommunicationImage,
+    },
+    { id: 2, keyword: "thanks", keywordName: "감사", image: ThanksImage },
+    { id: 3, keyword: "relax", keywordName: "휴식", image: RelaxImage },
+    {
+      id: 4,
+      keyword: "achievement",
+      keywordName: "성취",
+      image: AchievementImage,
+    },
+    { id: 5, keyword: "challenge", keywordName: "도전", image: ChallengeImage },
+    { id: 6, keyword: "emotion", keywordName: "감정", image: EmotionImage },
   ];
   // 전체 다이어리 조회 (mockData 호출)
   const { data: diaries = [] } = useQuery({
@@ -40,19 +65,22 @@ const MainPage = () => {
   });
 
   // 선택된 키워드에 따른 일기 필터링
-  const filteredDiaries = selectedKeyword
-    ? diaries.filter((diary) => diary.keyword === selectedKeyword)
-    : diaries;
+  const filteredDiaries = diaries
+    .filter((diary) => !selectedKeyword || diary.keyword === selectedKeyword)
+    .filter(
+      (diary) =>
+        diary.content &&
+        diary.content.toLowerCase().includes(searchContent.toLowerCase())
+    );
 
   return (
     <Container>
-      <Header>
-        <LogoLink onClick={() => navigate("/")}>
-          <Logo src={LogoImage} alt="logo" />
-          <Title style={{ marginLeft: "8px" }}>하루로그</Title>
-        </LogoLink>
-        <Nickname>guest</Nickname>
-      </Header>
+      <Nav
+        selectedKeyword={selectedKeyword}
+        setSelectedKeyword={setSelectedKeyword}
+        searchContent={searchContent}
+        setSearchContent={setSearchContent}
+      />
       <Body>
         <CommentContainer>
           <Comment>
@@ -99,7 +127,7 @@ const MainPage = () => {
           {filteredDiaries.map((diary) => (
             <DiaryCard key={diary.id}>
               <div onClick={() => navigate(`/diary/${diary.id}`)}>
-                <DiaryImage src={diary.image_data} alt={diary.title} />
+                <DiaryImage src={diary.image_data} alt={diary.keyword} />
                 <DiaryHeader>
                   <DiaryKeywordLabel>{diary.keyword}</DiaryKeywordLabel>
                   <DiaryDate>{diary.createdAt}</DiaryDate>
@@ -114,7 +142,11 @@ const MainPage = () => {
                   <img src={SmileImage} alt="smile" />
                   추천
                 </ActionButton>
-                <ActionButton>'{diary.keyword}'으로 작성하기</ActionButton>
+                <ActionButton
+                  onClick={() => navigate(`/write?keyword=${diary.keyword}`)}
+                >
+                  '{diary.keyword}'으로 작성하기
+                </ActionButton>
               </DiaryActions>
             </DiaryCard>
           ))}
@@ -134,25 +166,6 @@ const Container = styled.div`
   align-items: center;
 `;
 
-const Header = styled.div`
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 40px;
-  border-bottom: 1px solid #eaddff;
-`;
-
-const Title = styled.h1`
-  font-family: "UhBee Seulvely", sans-serif;
-  font-size: 36px;
-`;
-
-const Nickname = styled.p`
-  font-size: 24px;
-  margin-right: 100px;
-`;
-
 const LogoLink = styled.div`
   display: flex;
   align-items: center;
@@ -167,6 +180,8 @@ const Logo = styled.img`
 
 const Body = styled.div`
   width: 70%;
+  margin: 0 auto;
+  padding-top: 100px;
 `;
 
 const Comment = styled.h1`
@@ -189,15 +204,19 @@ const KeyWordImage = styled.img`
   height: 100px;
 `;
 
-const KeyWord = styled.button`
+const KeyWord = styled.button.attrs(props => ({
+  isSelected: undefined,
+}))`
+  display: flex;
+  align-items: center;
+  gap: 20px;
   border: none;
-  background-color: ${(props) =>
-    props.isSelected ? "#f0f0f0" : "transparent"};
+  background-color: ${(props) => props.isSelected ? "#f0f0f0" : "transparent"};
   cursor: pointer;
   transition: all 0.2s;
+  padding: 20px 40px;
   border: 1px solid #ddd;
-  padding: 20px 80px;
-  border-radius: 4px;
+  border-radius: 8px;
 
   &:hover {
     background-color: #f0f0f0;
