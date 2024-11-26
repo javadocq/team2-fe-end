@@ -1,0 +1,46 @@
+{
+  "diaries": [
+    {
+      "id": 1,
+      "keyword": "소통",
+      "createdAt": "24.11.30",
+      "content": "Figma ipsum Component variant main layer...",
+      "image_data": "../src/assets/CardBGImage.png"
+    },
+    {
+      "id": 2,
+      "keyword": "감사",
+      "createdAt": "24.11.30",
+      "content": "오늘은 정말 감사한 하루였다...",
+      "image_data": "/assets/CardBGImage.png"
+    },
+    {
+      "id": 3,
+      "keyword": "휴식",
+      "createdAt": "24.11.30",
+      "content": "오늘은 정말 휴식한 하루였다...",
+      "image_data": "/assets/CardBGImage.png"
+    },
+    {
+      "id": 4,
+      "keyword": "성취",
+      "createdAt": "24.11.30",
+      "content": "오늘은 정말 성취한 하루였다...",
+      "image_data": "/assets/CardBGImage.png"
+    },
+    {
+      "id": 5,
+      "keyword": "도전",
+      "createdAt": "24.11.30",
+      "content": "오늘은 정말 도전한 하루였다...",
+      "image_data": "/assets/CardBGImage.png"
+    },
+    {
+      "id": 6,
+      "keyword": "감정",
+      "createdAt": "24.11.30",
+      "content": "오늘은 정말 감정한 하루였다...",
+      "image_data": "/assets/CardBGImage.png"
+    }
+  ]
+}
