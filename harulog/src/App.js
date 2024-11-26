@@ -1,20 +1,29 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import MainPage from "./pages/MainPage";
-import { GlobalStyle } from "./styles/GlobalStyle";
+import DailyLog from "./pages/DailyLog";
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import styled from "styled-components";
+import './font.css';
 
-const queryClient = new QueryClient();
+const Container = styled.div`
+    display : flex;
+    height : 1300px;
+    width : 100%;
+    justify-content : center;
+    background: #FEFFFB;
+    margin : 0
+    padding : 0
+`;
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <GlobalStyle />
+    <Container>
+      <Router>
+        {/* Header 위치 */}
         <Routes>
-          <Route path="/" element={<MainPage />} />
+          {/* <Route path="/" element={<Main />}></Route> */}
+          <Route path="/dailylog" element={<DailyLog />}></Route>
         </Routes>
-      </BrowserRouter>
-    </QueryClientProvider>
+      </Router>
+    </Container>
   );
 }
 export default App;
