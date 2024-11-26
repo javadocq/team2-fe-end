@@ -1,7 +1,6 @@
 import { useState } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
-// import axios from "axios";
 import LogoImage from "../assets/LogoImage.png";
 import WriteButtonImage from "../assets/WriteButtonImage.png";
 import CardBGImage from "../assets/CardBGImage.png";
@@ -12,69 +11,34 @@ import AchievementImage from "../assets/keywordsImage/AchievementImage.png";
 import ChallengeImage from "../assets/keywordsImage/ChallengeImage.png";
 import EmotionImage from "../assets/keywordsImage/EmotionImage.png";
 import SmileImage from "../assets/SmileImage.png";
+import mockData from "../mocks/mockData.json";
+import { useQuery } from "@tanstack/react-query";
+
 const MainPage = () => {
   const navigate = useNavigate();
-  // const [diaries, setDiaries] = useState([]);
+
   const [selectedKeyword, setSelectedKeyword] = useState(null);
-
-  // useEffect(() => {
-  //   const fetchDiaries = async () => {
-  //     const response = await axios.get("http://localhost:3005/diaries");
-  //     setDiaries(response.data);
-  //   };
-  //   fetchDiaries();
-  // }, []);
-
-  // 키워드 배열로 리팩토링
+  
+  // 키워드 배열
   const keywords = [
-    { id: 1, keywordName: "소통", image: CommunicationImage },
-    { id: 2, keywordName: "감사", image: ThanksImage },
-    { id: 3, keywordName: "휴식", image: RelaxImage },
-    { id: 4, keywordName: "성취", image: AchievementImage },
-    { id: 5, keywordName: "도전", image: ChallengeImage },
-    { id: 6, keywordName: "감정", image: EmotionImage },
+    { id: 1, keyword : "communication", keywordName: "소통", image: CommunicationImage },
+    { id: 2, keyword : "thanks", keywordName: "감사", image: ThanksImage },
+    { id: 3, keyword : "relax", keywordName: "휴식", image: RelaxImage },
+    { id: 4, keyword : "achievement", keywordName: "성취", image: AchievementImage },
+    { id: 5, keyword : "challenge", keywordName: "도전", image: ChallengeImage },
+    { id: 6, keyword : "emotion", keywordName: "감정", image: EmotionImage },
   ];
+  // 전체 다이어리 조회 (mockData 호출)
+  const { data: diaries = [] } = useQuery({
+    queryKey: ["diaries"],
+    queryFn: () => {
+      return mockData.diaries.map((diary) => ({
+        ...diary,
+        image_data: CardBGImage,
+      }));
+    },
+  });
 
-  const diaries = [
-    {
-      id: 1,
-      keyword: "소통",
-      createdAt: "24.11.30",
-      // 일기 내용 5줄 이상일 때 ...으로 표시하고 그 뒤 내용는 숨김처리가 된다는 것을 알려주기 위해 작성
-      content:
-        "Figma ipsum Component variant main layer Figma ipsum Component variant main layer Figma ipsum Component variant main layer Figma ipsum Component variant main layer Figma ipsum Component variant main layer Figma ipsum Component variant main layer Figma ipsum Component variant main layer Figma ipsum Component variant main layer Figma ipsum Component variant main layer Figma ipsum Component variant main layer Figma ipsum Component variant main layer Figma ipsum Component variant main layer Figma ipsum Component variant main layer ",
-      image_data: CardBGImage,
-    },
-    {
-      id: 2,
-      keyword: "소통",
-      createdAt: "24.11.30",
-      content: "Figma ipsum Component variant main layer...",
-      image_data: CardBGImage,
-    },
-    {
-      id: 3,
-      keyword: "소통",
-      createdAt: "24.11.30",
-      content: "Figma ipsum Component variant main layer...",
-      image_data: CardBGImage,
-    },
-    {
-      id: 4,
-      keyword: "소통",
-      createdAt: "24.11.30",
-      content: "Figma ipsum Component variant main layer...",
-      image_data: CardBGImage,
-    },
-    {
-      id: 5,
-      keyword: "감사",
-      createdAt: "24.11.30",
-      content: "Figma ipsum Component variant main layer...",
-      image_data: CardBGImage,
-    },
-    // ... 더 많은 게시글
-  ];
   // 선택된 키워드에 따른 일기 필터링
   const filteredDiaries = selectedKeyword
     ? diaries.filter((diary) => diary.keyword === selectedKeyword)
@@ -134,15 +98,18 @@ const MainPage = () => {
         <DiaryContainer>
           {filteredDiaries.map((diary) => (
             <DiaryCard key={diary.id}>
-              <DiaryImage src={diary.image_data} alt={diary.title} />
-              <DiaryHeader>
-                <CategoryLabel>{diary.keyword}</CategoryLabel>
-                <DiaryDate>{diary.createdAt}</DiaryDate>
-              </DiaryHeader>
-              <DiaryContent>
-                <p>{diary.content}</p>
-              </DiaryContent>
+              <div onClick={() => navigate(`/diary/${diary.id}`)}>
+                <DiaryImage src={diary.image_data} alt={diary.title} />
+                <DiaryHeader>
+                  <DiaryKeywordLabel>{diary.keyword}</DiaryKeywordLabel>
+                  <DiaryDate>{diary.createdAt}</DiaryDate>
+                </DiaryHeader>
+                <DiaryContent>
+                  <p>{diary.content}</p>
+                </DiaryContent>
+              </div>
               <DiaryActions>
+                {/* 추천 버튼은 따로 컴포넌트로 만들어 놓고 재사용 할 수 있도록 할 예정 */}
                 <ActionButton>
                   <img src={SmileImage} alt="smile" />
                   추천
@@ -252,6 +219,7 @@ const DiaryCard = styled.div`
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   box-sizing: border-box;
   overflow: hidden;
+  cursor: pointer;
 `;
 
 const DiaryImage = styled.img`
@@ -271,7 +239,7 @@ const DiaryHeader = styled.div`
   z-index: 1;
 `;
 
-const CategoryLabel = styled.span`
+const DiaryKeywordLabel = styled.span`
   background-color: #fbffee;
   width: 100px;
   height: 62px;
