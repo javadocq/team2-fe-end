@@ -1,5 +1,6 @@
 import DailyLog from "./pages/DailyLog";
 import MainPage from "./pages/MainPage";
+import DailyDetailPage from "./pages/DailyDetailPage";
 import NavBar from "./components/Nav";
 import { DiaryProvider } from "./components/DiaryContext";
 //import react-router-dom
@@ -34,6 +35,7 @@ function App() {
             <Routes>
               <Route path="/" element={<MainPage />}></Route>
               <Route path="/dailylog" element={<DailyLog />}></Route>
+              <Route path="/diary/:id" element={<DailyDetailPage />}></Route>
             </Routes>
           </MainContent>
           </Router>
