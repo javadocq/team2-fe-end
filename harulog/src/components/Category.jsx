@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 //import style
 import styled from "styled-components";
@@ -33,8 +33,15 @@ const CategoryBox = styled.div`
     }};
 `;
 
-export default function Category({ category, select }) {
-    const [selectedCategory, setSelectedCategory] = useState(null); // 선택된 카테고리 상태
+export default function Category({ category, select, BeforeSelected }) {
+    const [selectedCategory, setSelectedCategory] = useState(BeforeSelected !== "" ? BeforeSelected : null); // 선택된 카테고리 상태
+
+
+    useEffect(() => {
+        if (BeforeSelected) {
+            setSelectedCategory(BeforeSelected);
+        }
+    }, [BeforeSelected]);
 
     function handleClickCategory(name) {
         if (selectedCategory !== name) {
