@@ -84,12 +84,22 @@ const RefreshIcon = styled.img`
     }
 `;
 
+const EraserOverlay = styled.div`
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: rgba(200, 200, 200, 0.5);
+    pointer-events: none;
+`;
+
 export default function TodayDrawing({ onDrawingUpdate }) {
     const canvasRef = useRef(null);
     const [useCtx, setUseCtx] = useState(null);
     const [painting, setPainting] = useState(false);
     const [showText, setShowText] = useState(true);
     const [selectedTool, setSelectedTool] = useState(null);
+    const [eraserPosition, setEraserPosition] = useState(null);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -103,8 +113,13 @@ export default function TodayDrawing({ onDrawingUpdate }) {
     }, []);
 
     function draw(e) {
-        const positionX = e.nativeEvent.offsetX; //현재 x값 위치
-        const positionY = e.nativeEvent.offsetY; //현재 Y값 위치
+        const positionX = e.nativeEvent.offsetX -10; //현재 x값 위치
+        const positionY = e.nativeEvent.offsetY -10; //현재 Y값 위치
+
+        if (selectedTool === 'eraser') {
+            setEraserPosition({ x: positionX, y: positionY });
+        }
+
         if (!painting) {
             useCtx.beginPath(); //선이 이어지지 않도록 초기화
             useCtx.moveTo(positionX, positionY);
@@ -127,6 +142,7 @@ export default function TodayDrawing({ onDrawingUpdate }) {
             const imageData = canvasRef.current.toDataURL("image/png");
             onDrawingUpdate(imageData);
         }
+        setEraserPosition(null);
     }
 
     function handleDraw() {
@@ -140,7 +156,7 @@ export default function TodayDrawing({ onDrawingUpdate }) {
         setSelectedTool('eraser');
         if(useCtx) {
             useCtx.strokeStyle = '#FFF';
-            useCtx.lineWidth = 10;
+            useCtx.lineWidth = 20;
         }
     }
 
@@ -157,7 +173,7 @@ export default function TodayDrawing({ onDrawingUpdate }) {
 
     return (
         <Container>
-            <Text>오늘의 순간*</Text>
+            <Text>오늘의 순간</Text>
             {showText && (
                 <PlaceHolderText>그림도 한번 남겨보면 어떨까요?</PlaceHolderText>
             )}
@@ -168,6 +184,11 @@ export default function TodayDrawing({ onDrawingUpdate }) {
                 onMouseMove={e => draw(e)}
                 onMouseLeave={handleMouseUp}
             />
+            {eraserPosition && selectedTool === 'eraser' && (
+                <EraserOverlay
+                    style={{ top: eraserPosition.y + 30, left: eraserPosition.x }}
+                />
+            )}
             <DrawTools>
                 <DrawIcon
                     src={Draw}

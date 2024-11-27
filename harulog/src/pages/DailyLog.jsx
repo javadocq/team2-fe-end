@@ -149,7 +149,7 @@ export default function DailyLog() {
     const [randomCategory, setRandomCategory] = useState("");
     const [logText, setLogText] = useState("");
     const [drawingImage, setDrawingImage] = useState("");  
-    const isFormValid = name !== "" && password !== "" && selectedCategory !== "" && logText !== "";
+    const isFormValid = name !== "" && password !== "" && selectedCategory !== "" && logText.trim() !== "";
     const [showPassword, setShowPassword] = useState(false);
 
     const getRandomCategory = () => {
