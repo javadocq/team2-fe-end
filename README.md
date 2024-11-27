@@ -45,4 +45,4 @@
     - 예: `feature/login`
 
 
-from [YeonDeok](https://github.com/YeonDeok)
+from [YeonDeok](https://github.com/YeonDeok)..
