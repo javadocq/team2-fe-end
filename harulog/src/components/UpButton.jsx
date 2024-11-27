@@ -1,18 +1,12 @@
-import React from 'react';
-import styled from 'styled-components';
+import React from "react";
+import styled from "styled-components";
 import Smile from "../assets/icon_smile.svg";
 import Check from "../assets/icon_check.svg";
 
 const UpButton = ({ diaryId, isLiked, onLike, children }) => {
   return (
-    <StyledButton 
-      onClick={() => onLike(diaryId)}
-      $isLiked={isLiked}
-    >
-      <img 
-        src={isLiked ? Check : Smile} 
-        alt="smile" 
-      />
+    <StyledButton onClick={() => onLike(diaryId)} $isLiked={isLiked}>
+      <img src={isLiked ? Check : Smile} alt="smile" />
       {children}
     </StyledButton>
   );
