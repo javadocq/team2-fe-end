@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 //import components
 import Category from "../components/Category";
 import TodayLog from "../components/TodayLog";
 import TodayDrawing from "../components/TodayDrawing";
+import { BASE_URL } from "../components/BASE_URL";
 
 //import assets
 import Communication from "../assets/icon_communication.svg";
@@ -135,6 +138,9 @@ const ButtonText = styled.h2`
 
 
 export default function DailyLog() {
+    const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
+    const keyword = searchParams.get("keyword");
     const [name, setName] = useState("");
     const [password, setPassword] = useState("");
     const [category, setCategory] = useState([
@@ -158,7 +164,11 @@ export default function DailyLog() {
     };
 
     useEffect(() => {
+        console.log(keyword);
         setRandomCategory(getRandomCategory());
+        if(keyword !== "") {
+            setSelectedCategory(keyword);
+        }
     }, [])
 
     function handleCategorySelect(categoryName) {
@@ -180,11 +190,22 @@ export default function DailyLog() {
 
 
     function handleLog(e) {
-        console.log(name);
-        console.log(password);
-        console.log(selectedCategory);
-        console.log(logText);
-        console.log(drawingImage);
+        e.preventDefault();
+        const createDiary = async() => {
+            try {
+                const response = axios.post(`${BASE_URL}/diaries`,{
+                    image_data: drawingImage,
+                    content: logText,
+                    username: name,
+                    password: password
+                })
+                console.log(response);
+            } catch(error) {
+                console.log("failed post diary : ", error);
+            }
+        }
+        createDiary();
+        navigate('/');
     }
 
     return (
@@ -212,7 +233,7 @@ export default function DailyLog() {
                     <Eye onClick={handleShowPassword}>{showPassword ? <img src={ShowEye} /> : <img src={hideEye} />}</Eye>
                 </Password>
                 <Text>카테고리*</Text>
-                <Category category={category} select={handleCategorySelect} selectedCategory={selectedCategory}/>
+                <Category category={category} select={handleCategorySelect} BeforeSelected={selectedCategory}/>
                 <TodayLog value={logText} onChange={handleLogTextChange}/>
                 <TodayDrawing onDrawingUpdate={handleDrawingUpdate}/>
                 <Button disabled={!isFormValid || password.length < 4 || password.length > 20} onClick={handleLog}>
