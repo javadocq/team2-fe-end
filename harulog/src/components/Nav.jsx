@@ -164,7 +164,7 @@ const SearchBar = styled.div`
 `;
 
 const SearchInput = styled.input`
-  width: 176px;
+  width: 140px;
   height: 40px;
   margin: 8px 0px;
   border: 1px solid #ddd;
@@ -172,6 +172,7 @@ const SearchInput = styled.input`
   font-size: 16px;
   outline: none;
   padding-left: 15px;
+  padding-right: 40px;
   &:focus {
     border-color: #6750a4;
   }
