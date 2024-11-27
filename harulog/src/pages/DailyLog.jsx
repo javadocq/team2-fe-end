@@ -196,6 +196,7 @@ export default function DailyLog() {
                 const response = axios.post(`${BASE_URL}/diaries`,{
                     image_data: drawingImage,
                     content: logText,
+                    category : selectedCategory,
                     username: name,
                     password: password
                 })
