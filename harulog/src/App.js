@@ -1,7 +1,7 @@
 import DailyLog from "./pages/DailyLog";
 import MainPage from "./pages/MainPage";
 import NavBar from "./components/Nav";
-
+import { DiaryProvider } from "./components/DiaryContext";
 //import react-router-dom
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
@@ -26,8 +26,9 @@ const Container = styled.div`
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Container>
-        <Router>
+      <DiaryProvider>
+        <Container>
+          <Router>
           <NavBar />
           <MainContent>
             <Routes>
@@ -35,8 +36,9 @@ function App() {
               <Route path="/dailylog" element={<DailyLog />}></Route>
             </Routes>
           </MainContent>
-        </Router>
-      </Container>
+          </Router>
+        </Container>
+      </DiaryProvider>
     </QueryClientProvider>
   );
 }
