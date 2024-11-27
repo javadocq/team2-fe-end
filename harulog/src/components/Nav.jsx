@@ -1,15 +1,22 @@
 import React, { useState, useEffect } from "react";
+//import style
 import styled from "styled-components";
-import { useNavigate, useLocation } from "react-router-dom";
-import LogoImage from "../assets/icon_logo.svg";
-import SearchIconImage from "../assets/icon_search.svg";
-import CommunicationImage from "../assets/icon_communication.svg";
-import ThanksImage from "../assets/icon_thanks.svg";
-import RelaxImage from "../assets/icon_relax.svg";
-import AchievementImage from "../assets/icon_achievement.svg";
-import ChallengeImage from "../assets/icon_challenge.svg";
-import EmotionImage from "../assets/icon_emotion.svg";
+//import components
 import ViewBestLog from "./ViewBestLog";
+
+//import react-router-dom
+import { useNavigate, useLocation } from "react-router-dom";
+
+//import assets
+import LogoImage from "../assets/icon_logo.svg";
+import Search from "../assets/icon_search.svg";
+import Communication from "../assets/icon_communication.svg";
+import Thanks from "../assets/icon_thanks.svg";
+import Relax from "../assets/icon_relax.svg";
+import Achievement from "../assets/icon_achievements.svg";
+import Challenge from "../assets/icon_challenge.svg";
+import Emotion from "../assets/icon_emotions.svg";
+
 const NavBar = ({
   selectedKeyword,
   setSelectedKeyword,
@@ -17,60 +24,76 @@ const NavBar = ({
   setSearchContent,
 }) => {
   const [isScrolled, setIsScrolled] = useState(false);
-  const location = useLocation();
+  const [selectedCategory, setSelectedCategory] = useState("");
   const navigate = useNavigate();
+
+  // 현재 페이지 경로
+  const location = useLocation();
+  const isMainPage = location.pathname === "/";
 
   // 스크롤 상태에 따른 Nav 구성
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 500) {
+      if (window.scrollY > 330) {
         setIsScrolled(true);
       } else {
         setIsScrolled(false);
       }
     };
-
-    // 메인 페이지(`/`)에서만 스크롤 이벤트 적용
-    if (location.pathname === "/") {
+    // 메인 페이지에서만 스크롤 이벤트 적용
+    if (isMainPage) {
       window.addEventListener("scroll", handleScroll);
     } else {
-      setIsScrolled(false); // 다른 페이지에서는 기본 상태로 고정
+      setIsScrolled(false);
     }
-
     // Cleanup
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
-  }, [location.pathname, selectedKeyword]);
+  }, [isMainPage]);
 
-  const keywords = [
+  // 카테고리 목록
+  const [category, setCategory] = useState([
     {
       id: 1,
-      keyword: "communication",
-      keywordName: "소통",
-      image: CommunicationImage,
+      categoryName: "소통",
+      image: Communication,
     },
-    { id: 2, keyword: "thanks", keywordName: "감사", image: ThanksImage },
-    { id: 3, keyword: "relax", keywordName: "휴식", image: RelaxImage },
+    {
+      id: 2,
+      categoryName: "감사",
+      image: Thanks,
+    },
+    {
+      id: 3,
+      categoryName: "휴식",
+      image: Relax,
+    },
     {
       id: 4,
-      keyword: "achievement",
-      keywordName: "성취",
-      image: AchievementImage,
+      categoryName: "성취",
+      image: Achievement,
     },
     {
       id: 5,
-      keyword: "challenge",
-      keywordName: "도전",
-      image: ChallengeImage,
+      categoryName: "도전",
+      image: Challenge,
     },
-    { id: 6, keyword: "emotion", keywordName: "감정", image: EmotionImage },
-  ];
+    {
+      id: 6,
+      categoryName: "감정",
+      image: Emotion,
+    },
+  ]);
+
+  // 스크롤 상태일 때 카테고리를 누를 경우 데이터 가져올 수 있어야함.
+  function handleCategorySelect(categoryName) {
+    setSelectedCategory(categoryName);
+  }
 
   return (
     <nav className={`nav ${isScrolled ? "scrolled" : ""}`}>
-      {isScrolled ? (
-        // 스크롤 상태의 Nav
+      {isMainPage && isScrolled ? (
         <>
           <Nav>
             <Logo onClick={() => navigate("/")}>
@@ -78,15 +101,20 @@ const NavBar = ({
               <Title style={{ marginLeft: "8px" }}>하루로그</Title>
             </Logo>
             <KeywordContainer>
-              {keywords.map((keyword) => (
-                <KeyWord
-                  key={keyword.id}
-                  onClick={() => setSelectedKeyword(keyword.keywordName)}
-                  isSelected={selectedKeyword === keyword.keywordName}
+              {category.map((category) => (
+                <Category
+                  key={category.id}
+                  onClick={() => {
+                    setCategory(category.categoryName);
+                  }}
+                  $isSelected={selectedCategory === category.categoryName}
                 >
-                  <KeyWordImage src={keyword.image} alt={keyword.keywordName} />
-                  <KeywordText>{keyword.keywordName}</KeywordText>
-                </KeyWord>
+                  <CategoryImage
+                    src={category.image}
+                    alt={category.categoryName}
+                  />
+                  <CategoryText>{category.categoryName}</CategoryText>
+                </Category>
               ))}
             </KeywordContainer>
             <SearchBar>
@@ -95,13 +123,12 @@ const NavBar = ({
                 value={searchContent}
                 onChange={(e) => setSearchContent(e.target.value)}
               />
-              <SearchIcon src={SearchIconImage} alt="search" />
+              <SearchIcon src={Search} alt="search" />
             </SearchBar>
-            <br />
           </Nav>
         </>
       ) : (
-        // 기본 Nav 구성
+        // 기본 Nav (메인 페이지 스크롤 전 + 다른 페이지)
         <Nav>
           <Logo onClick={() => navigate("/")}>
             <LogoImg src={LogoImage} alt="logo" />
@@ -113,7 +140,7 @@ const NavBar = ({
               value={searchContent}
               onChange={(e) => setSearchContent(e.target.value)}
             />
-            <SearchIcon src={SearchIconImage} alt="search" />
+            <SearchIcon src={Search} alt="search" />
           </SearchBar>
         </Nav>
       )}
@@ -124,38 +151,46 @@ const NavBar = ({
 export default NavBar;
 
 const Nav = styled.div`
-  position: fixed; // 고정 위치
-  top: 0; // 최상단에 위치
-  left: 0; // 왼쪽 끝에 위치
-  right: 0; // 오른쪽 끝까지 확장
-  z-index: 1000; // 다른 요소들 위에 표시
-  background: white; // 배경색 지정
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: #ffffff;
+  height: 56px;
+
   display: flex;
   justify-content: space-between;
   align-items: center;
+  font-family: "Pretendard";
   border-bottom: 1px solid #eaddff;
 `;
 
-const Title = styled.h1`
+const Title = styled.div`
   font-family: "UhBee Seulvely", sans-serif;
-  font-size: 36px;
+  font-size: 14px;
+  margin-left: 92px;
+  width: 60px;
 `;
 
 const SearchBar = styled.div`
   position: relative;
-  width: 300px;
-  margin-right: 50px;
+  width: 200px;
+  height: 56px;
+  padding: 8px 0px;
+  margin-left: 10px;
+  margin-right: 0px;
 `;
 
 const SearchInput = styled.input`
-  width: 100%;
+  width: 176px;
   height: 40px;
-  padding: 8px 0px 8px 12px;
+  margin: 8px 0px;
   border: 1px solid #ddd;
-  border-radius: 10px;
+  border-radius: 4px;
   font-size: 16px;
   outline: none;
-
+  padding-left: 15px;
   &:focus {
     border-color: #6750a4;
   }
@@ -172,37 +207,40 @@ const SearchIcon = styled.img`
 
 const Logo = styled.div`
   display: flex;
+  width: 200px;
   align-items: center;
   text-decoration: none;
-  margin-left: 100px;
   cursor: pointer;
 `;
 
 const LogoImg = styled.img`
-  width: 30px;
+  width: 20px;
+  height: 27px;
+  margin-left: 56px;
 `;
 
 const KeywordContainer = styled.div`
   display: flex;
   align-items: center;
-  width: 70%;
-  margin-left: 100px;
+  max-width: 856px;
   justify-content: center;
-  gap: 20px;
+  gap: 0px;
 `;
 
-const KeyWord = styled.button.attrs(props => ({
+const Category = styled.button.attrs((props) => ({
   isSelected: undefined, // DOM에 전달되지 않도록 설정
 }))`
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 8px;
   border: none;
-  background-color: ${(props) => props.isSelected ? "#f0f0f0" : "transparent"};
-  border-bottom: ${(props) => props.isSelected ? "1px solid #65558f" : "none"};
+  background-color: ${(props) =>
+    props.isSelected ? "#f0f0f0" : "transparent"};
+  border-bottom: ${(props) =>
+    props.isSelected ? "1px solid #65558f" : "none"};
   cursor: pointer;
   transition: all 0.2s;
-  padding: 20px 70px;
+  padding: 12px 40px;
   border-radius: 8px;
 
   &:hover {
@@ -210,13 +248,14 @@ const KeyWord = styled.button.attrs(props => ({
   }
 `;
 
-const KeyWordImage = styled.img`
-  width: 50px;
-  height: 50px;
+const CategoryImage = styled.img`
+  width: 32px;
+  height: 32px;
 `;
 
-const KeywordText = styled.p`
-  font-size: 30px;
+const CategoryText = styled.p`
+  font-size: 14px;
+  width: 30px;
   margin: 0;
   color: #666666;
   font-weight: 500;

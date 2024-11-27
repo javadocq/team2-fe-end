@@ -1,17 +1,28 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
+
+//import style
 import styled from "styled-components";
+
+//import react-router-dom
 import { useNavigate } from "react-router-dom";
+
+//import components
+import UpButton from "../components/UpButton";
+
+//import assets
 import WriteButtonImage from "../assets/icon_writebutton.svg";
 import CardBGImage from "../assets/CardBGImage.png";
-import CommunicationImage from "../assets/icon_communication.svg";
-import ThanksImage from "../assets/icon_thanks.svg";
-import RelaxImage from "../assets/icon_relax.svg";
-import AchievementImage from "../assets/icon_achievement.svg";
-import ChallengeImage from "../assets/icon_challenge.svg";
-import EmotionImage from "../assets/icon_emotion.svg";
-import Nav from "../components/Nav";
-import SmileImage from "../assets/icon_smile.svg";
+import Communication from "../assets/icon_communication.svg";
+import Thanks from "../assets/icon_thanks.svg";
+import Relax from "../assets/icon_relax.svg";
+import Achievement from "../assets/icon_achievements.svg";
+import Challenge from "../assets/icon_challenge.svg";
+import Emotion from "../assets/icon_emotions.svg";
+import Smile from "../assets/icon_smile.svg";
 import mockData from "../mocks/mockData.json";
+import Check from "../assets/icon_check.svg";
+
+//import react-query
 import { useQuery } from "@tanstack/react-query";
 
 const MainPage = () => {
@@ -19,6 +30,7 @@ const MainPage = () => {
   const [isKeywordFixed, setIsKeywordFixed] = useState(false);
   const [selectedKeyword, setSelectedKeyword] = useState(null);
   const [searchContent, setSearchContent] = useState("");
+  const [likedDiaries, setLikedDiaries] = useState(new Set());
 
   useEffect(() => {
     const handleScroll = () => {
@@ -35,24 +47,22 @@ const MainPage = () => {
   }, []);
 
   // 키워드 배열
-  const keywords = [
+  const [keywords, setKeywords] = useState([
     {
       id: 1,
-      keyword: "communication",
       keywordName: "소통",
-      image: CommunicationImage,
+      image: Communication,
     },
-    { id: 2, keyword: "thanks", keywordName: "감사", image: ThanksImage },
-    { id: 3, keyword: "relax", keywordName: "휴식", image: RelaxImage },
+    { id: 2, keywordName: "감사", image: Thanks },
+    { id: 3, keywordName: "휴식", image: Relax },
     {
       id: 4,
-      keyword: "achievement",
       keywordName: "성취",
-      image: AchievementImage,
+      image: Achievement,
     },
-    { id: 5, keyword: "challenge", keywordName: "도전", image: ChallengeImage },
-    { id: 6, keyword: "emotion", keywordName: "감정", image: EmotionImage },
-  ];
+    { id: 5, keywordName: "도전", image: Challenge },
+    { id: 6, keywordName: "감정", image: Emotion },
+  ]);
   // 전체 다이어리 조회 (mockData 호출)
   const { data: diaries = [] } = useQuery({
     queryKey: ["diaries"],
@@ -73,53 +83,57 @@ const MainPage = () => {
         diary.content.toLowerCase().includes(searchContent.toLowerCase())
     );
 
+  const scrollToKeywordSection = () => {
+    const keywordSection = document.getElementById("keyword-section");
+    if (keywordSection) {
+      const offset = keywordSection.offsetTop + 50; // 헤더 높이만큼 여유 공간
+      window.scrollTo({
+        top: offset,
+        behavior: "smooth", // 부드러운 스크롤 효과
+      });
+    }
+  };
+
+  const handleLike = (diaryId) => {
+    setLikedDiaries((prev) => {
+      const newLiked = new Set(prev);
+      if (newLiked.has(diaryId)) {
+        newLiked.delete(diaryId);
+      } else {
+        newLiked.add(diaryId);
+      }
+      return newLiked;
+    });
+  };
   return (
     <Container>
-      <Nav
-        selectedKeyword={selectedKeyword}
-        setSelectedKeyword={setSelectedKeyword}
-        searchContent={searchContent}
-        setSearchContent={setSearchContent}
-      />
       <Body>
-        <CommentContainer>
+        <BannerContainer>
           <Comment>
             당신의 하루는
             <br />
             어떠셨나요?
           </Comment>
-          <LogoLink onClick={() => navigate("/write")}>
-            <p style={{ fontSize: "28px", marginRight: "10px" }}>
-              로그 작성하러 가기
-            </p>
-            <Logo
-              style={{ marginBottom: "0px" }}
-              src={WriteButtonImage}
-              alt="logo"
-            />
+          <LogoLink onClick={() => navigate("/dailylog")}>
+            <p>로그 작성하러 가기</p>
+            <Logo src={WriteButtonImage} alt="logo" />
           </LogoLink>
-        </CommentContainer>
+        </BannerContainer>
         {/* {diaries.map((diary) => (
         <div key={diary.id}>{diary.title}</div>
       ))} */}
-        <KeyWordContainer>
+        <KeyWordContainer id="keyword-section">
           {keywords.map((keyword) => (
             <KeyWord
               key={keyword.id}
-              onClick={() => setSelectedKeyword(keyword.keywordName)}
-              isSelected={selectedKeyword === keyword.keywordName}
+              onClick={() => {
+                setSelectedKeyword(keyword.keywordName);
+                scrollToKeywordSection();
+              }}
+              $isSelected={selectedKeyword === keyword.keywordName}
             >
               <KeyWordImage src={keyword.image} alt={keyword.keywordName} />
-              <p
-                style={{
-                  fontSize: "28px",
-                  marginTop: "10px",
-                  marginBottom: "10px",
-                  color: "#666666",
-                }}
-              >
-                {keyword.keywordName}
-              </p>
+              <div>{keyword.keywordName}</div>
             </KeyWord>
           ))}
         </KeyWordContainer>
@@ -127,26 +141,31 @@ const MainPage = () => {
           {filteredDiaries.map((diary) => (
             <DiaryCard key={diary.id}>
               <div onClick={() => navigate(`/diary/${diary.id}`)}>
-                <DiaryImage src={diary.image_data} alt={diary.keyword} />
+                {diary.image_data && (
+                  <DiaryImage src={diary.image_data} alt={diary.keyword} />
+                )}
                 <DiaryHeader>
                   <DiaryKeywordLabel>{diary.keyword}</DiaryKeywordLabel>
                   <DiaryDate>{diary.createdAt}</DiaryDate>
                 </DiaryHeader>
-                <DiaryContent>
+                <DiaryContent $hasImage={!!diary.image_data}>
                   <p>{diary.content}</p>
                 </DiaryContent>
               </div>
               <DiaryActions>
                 {/* 추천 버튼은 따로 컴포넌트로 만들어 놓고 재사용 할 수 있도록 할 예정 */}
-                <ActionButton>
-                  <img src={SmileImage} alt="smile" />
+                <UpButton
+                  diaryId={diary.id}
+                  isLiked={likedDiaries.has(diary.id)}
+                  onLike={handleLike}
+                >
                   추천
-                </ActionButton>
-                <ActionButton
-                  onClick={() => navigate(`/write?keyword=${diary.keyword}`)}
+                </UpButton>
+                <WriteButton
+                  onClick={() => navigate(`/DailyLog?keyword=${diary.keyword}`)}
                 >
                   '{diary.keyword}'으로 작성하기
-                </ActionButton>
+                </WriteButton>
               </DiaryActions>
             </DiaryCard>
           ))}
@@ -160,58 +179,84 @@ export default MainPage;
 
 const Container = styled.div`
   width: 100%;
-  height: 100vh;
+  max-width: 1280px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
+  background-color: #fefffb;
+  font-family: Pretendard;
 `;
 
 const LogoLink = styled.div`
   display: flex;
+  width: 145px;
+  height: 24px;
   align-items: center;
+  justify-content: center;
+  padding: 12px 30px;
   text-decoration: none;
-  margin-left: 100px;
+  border-radius: 8px;
   cursor: pointer;
+  background-color: #ffffff;
+
+  p {
+    font-size: 14px;
+    margin-right: 4px;
+  }
 `;
 
 const Logo = styled.img`
-  width: 30px;
+  width: 19px;
+  height: 19px;
 `;
 
 const Body = styled.div`
-  width: 70%;
+  width: 100%;
+  max-width: 880px;
   margin: 0 auto;
-  padding-top: 100px;
 `;
 
 const Comment = styled.h1`
   font-family: "GangwonEdu_OTFBoldA";
-  font-size: 112px;
+  font-size: 56px;
+  margin: 0;
 `;
 
-const CommentContainer = styled.div`
+const BannerContainer = styled.div`
+  width: 880px;
+  height: 146px;
   display: flex;
+  align-items: flex-end;
   justify-content: space-between;
+  padding: 20px 0px 40px 0px;
 `;
 
 const KeyWordContainer = styled.div`
   display: flex;
   justify-content: space-between;
+  width: 100%;
+  padding: 0px;
+  margin: 20px 0;
 `;
 
 const KeyWordImage = styled.img`
-  width: 100px;
-  height: 100px;
+  width: 48px;
+  height: 48px;
 `;
 
-const KeyWord = styled.button.attrs(props => ({
+const KeyWord = styled.button.attrs((props) => ({
   isSelected: undefined,
 }))`
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 20px;
+  width: 120px;
+  height: 104px;
+  gap: 12px;
   border: none;
-  background-color: ${(props) => props.isSelected ? "#f0f0f0" : "transparent"};
+  background-color: ${(props) =>
+    props.isSelected ? "#f0f0f0" : "transparent"};
   cursor: pointer;
   transition: all 0.2s;
   padding: 20px 40px;
@@ -224,26 +269,27 @@ const KeyWord = styled.button.attrs(props => ({
 `;
 // Styled Components
 const DiaryContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); // 3열 그리드
   gap: 20px;
+  width: 100%;
   margin-top: 30px;
+  padding: 0px;
 `;
 
 const DiaryCard = styled.div`
-  flex: 0 0 calc(33.333% - 14px);
+  width: 100%; // 너비를 100%로 설정
+  height: 220px;
   position: relative;
   background: white;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  box-sizing: border-box;
   overflow: hidden;
-  cursor: pointer;
 `;
 
 const DiaryImage = styled.img`
   width: 100%;
-  height: 200px;
+  height: 100px;
   object-fit: cover;
 `;
 
@@ -260,40 +306,39 @@ const DiaryHeader = styled.div`
 
 const DiaryKeywordLabel = styled.span`
   background-color: #fbffee;
-  width: 100px;
-  height: 62px;
+  width: 49px;
+  height: 32px;
   display: flex;
   justify-content: center;
   align-items: center;
   border-radius: 4px;
-  font-size: 24px;
+  font-size: 12px;
 `;
 
 const DiaryDate = styled.span`
   color: #666;
   padding: 4px 8px;
   border-radius: 4px;
-  font-size: 24px;
+  font-size: 12px;
   display: flex;
   justify-content: center;
   align-items: center;
 `;
 
 const DiaryContent = styled.div`
-  padding: 16px;
+  margin: 8px 12px;
 
   p {
     font-family: "UhBee Seulvely", sans-serif;
-    font-size: 28px;
     display: -webkit-box;
-    -webkit-line-clamp: 5;
+    height: 50px;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
     line-height: 1.5;
     margin: 0;
     color: #444;
-    height: ${28 * 1.5 * 5}px;
+    -webkit-line-clamp: ${(props) => (props.$hasImage ? 3 : 5)};
   }
 `;
 
@@ -302,24 +347,27 @@ const DiaryActions = styled.div`
   justify-content: space-between;
   align-items: center;
   gap: 8px;
-  padding: 16px;
+  padding: 8px 12px;
 `;
 
-const ActionButton = styled.button`
+const WriteButton = styled.button`
   display: flex;
   flex: 1;
   align-items: center;
   justify-content: center;
-  height: 65px;
-  gap: 8px;
-  padding: 8px 12px;
+  width: 120px;
+  height: 32px;
+  gap: 12px;
+  padding: 8px 5px;
   border: 1px solid #ddd;
-  border-radius: 20px;
+  border-radius: 4px;
   background: white;
   cursor: pointer;
-  font-size: 24px;
-
+  font-size: 12px;
+  font-family: Pretendard;
+  background: ${(props) => (props.$isLiked ? "#eaddff" : "white")};
+  color: ${(props) => (props.$isLiked ? "#FFFFFF" : "inherit")};
   &:hover {
-    background: #f5f5f5;
+    background: #eaddff;
   }
 `;

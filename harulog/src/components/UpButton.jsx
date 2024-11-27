@@ -1,61 +1,48 @@
-import React, { useState, useEffect } from "react";
-import SmileImage from "../assets/smile.png";
-import axios from "axios";
+import React from 'react';
+import styled from 'styled-components';
+import Smile from "../assets/icon_smile.svg";
+import Check from "../assets/icon_check.svg";
 
-const UpButton = ({
-  id,
-  initialCount = 0,
-  content,
-  image_data,
-  username,
-  password,
-}) => {
-  const [upCount, setUpCount] = useState(initialCount);
-  const [hasVoted, setHasVoted] = useState(false);
-
-  useEffect(() => {
-    const fetchUpvoteData = async () => {
-      try {
-        const response = await axios.get(`http://localhost:3005/diaries/${id}`);
-        setUpCount(response.data.up || 0);
-        setHasVoted(response.data.hasVoted);
-      } catch (error) {
-        console.error("추천 데이터 로딩 실패:", error);
-      }
-    };
-
-    fetchUpvoteData();
-  }, [id]);
-
-  const handleUpClick = async () => {
-    const newCount = hasVoted ? upCount - 1 : upCount + 1;
-
-    try {
-      setUpCount(newCount);
-      setHasVoted(!hasVoted);
-
-      await axios.put(`http://localhost:3005/diaries/${id}`, {
-        image_data,
-        content,
-        username,
-        password,
-        up: upCount,
-      });
-    } catch (error) {
-      console.error("추천 처리 실패:", error);
-    }
-  };
-
+const UpButton = ({ diaryId, isLiked, onLike, children }) => {
   return (
-    <button
-      onClick={handleUpClick}
-      className={`px-4 py-2 rounded transition-colors ${
-        hasVoted ? "bg-blue-600" : "bg-blue-500 hover:bg-blue-600"
-      } text-white`}
+    <StyledButton 
+      onClick={() => onLike(diaryId)}
+      $isLiked={isLiked}
     >
-      {hasVoted ? "추천 취소" : "추천"} ({upCount})
-    </button>
+      <img 
+        src={isLiked ? Check : Smile} 
+        alt="smile" 
+      />
+      {children}
+    </StyledButton>
   );
 };
 
 export default UpButton;
+
+const StyledButton = styled.button`
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  width: 120px;
+  height: 32px;
+  gap: 12px;
+  padding: 8px 5px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: ${props => props.$isLiked ? '#eaddff' : 'white'};
+  cursor: pointer;
+  font-size: 12px;
+  font-family: Pretendard;
+  color: ${props => props.$isLiked ? '#ffffff' : 'inherit'};
+
+  &:hover {
+    background: #eaddff;
+  }
+
+  img {
+    width: 16px;
+    height: 16px;
+  }
+`;

@@ -1,18 +1,19 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
+import mockData from '../mocks/mockData.json';
 
-const ViewPage = ({ diaries = [] }) => {
+const ViewPage = () => {
   const [activeTab, setActiveTab] = useState('mostViewed');
   const navigate = useNavigate();
 
   // 데이터가 있는지 확인
-  const mostViewedLogs = diaries.length > 0
-    ? diaries.sort((a, b) => b.views - a.views).slice(0, 3)
+  const mostViewedLogs = mockData.length > 0
+    ? mockData.sort((a, b) => b.views - a.views).slice(0, 3)
     : [];
 
-  const mostLikedLogs = diaries.length > 0
-    ? diaries.sort((a, b) => b.likes - a.likes).slice(0, 3)
+  const mostLikedLogs = mockData.length > 0
+    ? mockData.sort((a, b) => b.likes - a.likes).slice(0, 3)
     : [];
 
   const logsToDisplay = activeTab === 'mostViewed' ? mostViewedLogs : mostLikedLogs;
