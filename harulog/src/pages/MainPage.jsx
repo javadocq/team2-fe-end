@@ -96,7 +96,10 @@ const MainPage = () => {
                 </UpButton>
                 <WriteButton
                   //키워드가 선택된 채 작성페이지로 이동함.
-                  onClick={() => navigate(`/DailyLog?keyword=${diary.keyword}`)}
+                  onClick={() =>{
+                    window.scrollTo(0, 0); // 스크롤 초기화
+                    navigate(`/DailyLog?keyword=${diary.keyword}`);
+                  }}
                 >
                   '{diary.keyword}'으로 작성하기
                 </WriteButton>
