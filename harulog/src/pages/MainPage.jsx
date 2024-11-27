@@ -54,7 +54,10 @@ const MainPage = () => {
             <br />
             어떠셨나요?
           </Comment>
-          <LogoLink onClick={() => navigate("/dailylog")}>
+          <LogoLink onClick={() => {
+            window.scrollTo(0, 0); // 스크롤 초기화
+            navigate("/dailylog")
+            }}>
             <p>로그 작성하러 가기</p>
             <Logo src={WriteButtonImage} alt="logo" />
           </LogoLink>
@@ -74,7 +77,10 @@ const MainPage = () => {
         <DiaryContainer>
           {filteredDiaries.map((diary) => (
             <DiaryCard key={diary.id}>
-              <div onClick={() => navigate(`/diary/${diary.id}`)}>
+              <div onClick={() => {
+                navigate(`/diary/${diary.id}`)
+                window.scrollTo(0, 0); // 스크롤 초기화
+              }}>
                 {diary.image_data && (
                   <DiaryImage src={diary.image_data} alt={diary.keyword} />
                 )}
