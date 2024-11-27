@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 //import components
 import Category from "../components/Category";
 import TodayLog from "../components/TodayLog";
 import TodayDrawing from "../components/TodayDrawing";
+import { BASE_URL } from "../components/BASE_URL";
 
 //import assets
 import Communication from "../assets/icon_communication.svg";
@@ -188,6 +190,21 @@ export default function DailyLog() {
 
 
     function handleLog(e) {
+        e.preventDefault();
+        const createDiary = async() => {
+            try {
+                const response = axios.post(`${BASE_URL}/diaries`,{
+                    image_data: drawingImage,
+                    content: logText,
+                    username: name,
+                    password: password
+                })
+                console.log(response);
+            } catch(error) {
+                console.log("failed post diary : ", error);
+            }
+        }
+        createDiary();
         navigate('/');
     }
 
