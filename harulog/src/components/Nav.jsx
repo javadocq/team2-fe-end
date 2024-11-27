@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 //import style
 import styled from "styled-components";
-//import components
-import ViewBestLog from "./ViewBestLog";
 
 //import react-router-dom
 import { useNavigate, useLocation } from "react-router-dom";
@@ -16,44 +14,35 @@ import Relax from "../assets/icon_relax.svg";
 import Achievement from "../assets/icon_achievements.svg";
 import Challenge from "../assets/icon_challenge.svg";
 import Emotion from "../assets/icon_emotions.svg";
+import { useDiaryContext } from "./DiaryContext";
 
-const NavBar = ({
-  selectedKeyword,
-  setSelectedKeyword,
-  searchContent,
-  setSearchContent,
-}) => {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState("");
+const NavBar = () => {
+  const { 
+    selectedCategory,
+    searchContent, 
+    setSearchContent,
+    isScrolled,
+    handleCategoryClick,
+    handleScroll  // context에서 가져오기
+  } = useDiaryContext();
+
   const navigate = useNavigate();
-
-  // 현재 페이지 경로
   const location = useLocation();
   const isMainPage = location.pathname === "/";
 
   // 스크롤 상태에 따른 Nav 구성
   useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 330) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
-    };
-    // 메인 페이지에서만 스크롤 이벤트 적용
     if (isMainPage) {
       window.addEventListener("scroll", handleScroll);
-    } else {
-      setIsScrolled(false);
     }
-    // Cleanup
+
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
-  }, [isMainPage]);
+  }, [isMainPage, handleScroll]);
 
   // 카테고리 목록
-  const [category, setCategory] = useState([
+  const [category] = useState([
     {
       id: 1,
       categoryName: "소통",
@@ -86,11 +75,6 @@ const NavBar = ({
     },
   ]);
 
-  // 스크롤 상태일 때 카테고리를 누를 경우 데이터 가져올 수 있어야함.
-  function handleCategorySelect(categoryName) {
-    setSelectedCategory(categoryName);
-  }
-
   return (
     <nav className={`nav ${isScrolled ? "scrolled" : ""}`}>
       {isMainPage && isScrolled ? (
@@ -104,9 +88,7 @@ const NavBar = ({
               {category.map((category) => (
                 <Category
                   key={category.id}
-                  onClick={() => {
-                    setCategory(category.categoryName);
-                  }}
+                  onClick={() => handleCategoryClick(category.categoryName)}
                   $isSelected={selectedCategory === category.categoryName}
                 >
                   <CategoryImage
@@ -128,7 +110,6 @@ const NavBar = ({
           </Nav>
         </>
       ) : (
-        // 기본 Nav (메인 페이지 스크롤 전 + 다른 페이지)
         <Nav>
           <Logo onClick={() => navigate("/")}>
             <LogoImg src={LogoImage} alt="logo" />
