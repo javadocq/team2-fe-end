@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 //import style
 import styled from "styled-components";
@@ -8,103 +8,43 @@ import { useNavigate } from "react-router-dom";
 
 //import components
 import UpButton from "../components/UpButton";
-
+import { useDiaryContext } from "../components/DiaryContext";
 //import assets
 import WriteButtonImage from "../assets/icon_writebutton.svg";
-import CardBGImage from "../assets/CardBGImage.png";
 import Communication from "../assets/icon_communication.svg";
 import Thanks from "../assets/icon_thanks.svg";
 import Relax from "../assets/icon_relax.svg";
 import Achievement from "../assets/icon_achievements.svg";
 import Challenge from "../assets/icon_challenge.svg";
 import Emotion from "../assets/icon_emotions.svg";
-import Smile from "../assets/icon_smile.svg";
-import mockData from "../mocks/mockData.json";
-import Check from "../assets/icon_check.svg";
 
-//import react-query
-import { useQuery } from "@tanstack/react-query";
 
 const MainPage = () => {
   const navigate = useNavigate();
-  const [isKeywordFixed, setIsKeywordFixed] = useState(false);
-  const [selectedKeyword, setSelectedKeyword] = useState(null);
-  const [searchContent, setSearchContent] = useState("");
-  const [likedDiaries, setLikedDiaries] = useState(new Set());
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const keywordSection = document.getElementById("keyword-section");
-      if (keywordSection) {
-        const keywordPosition = keywordSection.offsetTop;
-        const scrollPosition = window.scrollY + 80; // 헤더 높이만큼 더해줌
-        setIsKeywordFixed(scrollPosition > keywordPosition);
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  const { 
+    selectedCategory,
+    handleCategoryClick,
+    filteredDiaries
+  } = useDiaryContext();
+  const [like, setLike] = useState({});
 
   // 키워드 배열
-  const [keywords, setKeywords] = useState([
-    {
-      id: 1,
-      keywordName: "소통",
-      image: Communication,
-    },
-    { id: 2, keywordName: "감사", image: Thanks },
-    { id: 3, keywordName: "휴식", image: Relax },
-    {
-      id: 4,
-      keywordName: "성취",
-      image: Achievement,
-    },
-    { id: 5, keywordName: "도전", image: Challenge },
-    { id: 6, keywordName: "감정", image: Emotion },
+  const [categories] = useState([
+    { id: 1, categoryName: "소통", image: Communication },
+    { id: 2, categoryName: "감사", image: Thanks },
+    { id: 3, categoryName: "휴식", image: Relax },
+    { id: 4, categoryName: "성취", image: Achievement },
+    { id: 5, categoryName: "도전", image: Challenge },
+    { id: 6, categoryName: "감정", image: Emotion },
   ]);
-  // 전체 다이어리 조회 (mockData 호출)
-  const { data: diaries = [] } = useQuery({
-    queryKey: ["diaries"],
-    queryFn: () => {
-      return mockData.diaries.map((diary) => ({
-        ...diary,
-        image_data: CardBGImage,
-      }));
-    },
-  });
-
-  // 선택된 키워드에 따른 일기 필터링
-  const filteredDiaries = diaries
-    .filter((diary) => !selectedKeyword || diary.keyword === selectedKeyword)
-    .filter(
-      (diary) =>
-        diary.content &&
-        diary.content.toLowerCase().includes(searchContent.toLowerCase())
-    );
-
-  const scrollToKeywordSection = () => {
-    const keywordSection = document.getElementById("keyword-section");
-    if (keywordSection) {
-      const offset = keywordSection.offsetTop + 50; // 헤더 높이만큼 여유 공간
-      window.scrollTo({
-        top: offset,
-        behavior: "smooth", // 부드러운 스크롤 효과
-      });
-    }
-  };
 
   const handleLike = (diaryId) => {
-    setLikedDiaries((prev) => {
-      const newLiked = new Set(prev);
-      if (newLiked.has(diaryId)) {
-        newLiked.delete(diaryId);
-      } else {
-        newLiked.add(diaryId);
-      }
-      return newLiked;
-    });
+    setLike((prev) => ({
+      ...prev,
+      [diaryId]: !prev[diaryId],
+    }));
   };
+
   return (
     <Container>
       <Body>
@@ -119,24 +59,18 @@ const MainPage = () => {
             <Logo src={WriteButtonImage} alt="logo" />
           </LogoLink>
         </BannerContainer>
-        {/* {diaries.map((diary) => (
-        <div key={diary.id}>{diary.title}</div>
-      ))} */}
-        <KeyWordContainer id="keyword-section">
-          {keywords.map((keyword) => (
-            <KeyWord
-              key={keyword.id}
-              onClick={() => {
-                setSelectedKeyword(keyword.keywordName);
-                scrollToKeywordSection();
-              }}
-              $isSelected={selectedKeyword === keyword.keywordName}
+        <CategoryContainer id="category-section">
+          {categories.map((category) => (
+            <Category
+              key={category.id}
+              onClick={() => handleCategoryClick(category.categoryName)}
+              $isSelected={selectedCategory === category.categoryName}
             >
-              <KeyWordImage src={keyword.image} alt={keyword.keywordName} />
-              <div>{keyword.keywordName}</div>
-            </KeyWord>
+              <CategoryImage src={category.image} alt={category.categoryName} />
+              <div>{category.categoryName}</div>
+            </Category>
           ))}
-        </KeyWordContainer>
+        </CategoryContainer>
         <DiaryContainer>
           {filteredDiaries.map((diary) => (
             <DiaryCard key={diary.id}>
@@ -153,15 +87,15 @@ const MainPage = () => {
                 </DiaryContent>
               </div>
               <DiaryActions>
-                {/* 추천 버튼은 따로 컴포넌트로 만들어 놓고 재사용 할 수 있도록 할 예정 */}
                 <UpButton
                   diaryId={diary.id}
-                  isLiked={likedDiaries.has(diary.id)}
+                  isLiked={like[diary.id]}
                   onLike={handleLike}
                 >
                   추천
                 </UpButton>
                 <WriteButton
+                  //키워드가 선택된 채 작성페이지로 이동함.
                   onClick={() => navigate(`/DailyLog?keyword=${diary.keyword}`)}
                 >
                   '{diary.keyword}'으로 작성하기
@@ -232,7 +166,7 @@ const BannerContainer = styled.div`
   padding: 20px 0px 40px 0px;
 `;
 
-const KeyWordContainer = styled.div`
+const CategoryContainer = styled.div`
   display: flex;
   justify-content: space-between;
   width: 100%;
@@ -240,12 +174,12 @@ const KeyWordContainer = styled.div`
   margin: 20px 0;
 `;
 
-const KeyWordImage = styled.img`
+const CategoryImage = styled.img`
   width: 48px;
   height: 48px;
 `;
 
-const KeyWord = styled.button.attrs((props) => ({
+const Category = styled.button.attrs((props) => ({
   isSelected: undefined,
 }))`
   display: flex;
