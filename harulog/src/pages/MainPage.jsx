@@ -132,7 +132,7 @@ const MainPage = () => {
                   <DiaryImage src={diary.image_data} alt="diary" />
                 )}
                 <DiaryHeader>
-                  <DiaryKeywordLabel>{diary.category_id}</DiaryKeywordLabel>
+                  <DiaryKeywordLabel>{`${categories.find(cat => cat.id === diary.category_id)?.categoryName || ''}`}</DiaryKeywordLabel>
                   <DiaryDate>{diary.created_at.slice(0, 10)}</DiaryDate>
                 </DiaryHeader>
                 <DiaryContent
