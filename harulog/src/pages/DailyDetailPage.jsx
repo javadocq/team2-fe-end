@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useNavigate, useParams } from "react-router-dom";
 import mockData from "../mocks/mockData.json";
@@ -12,6 +12,20 @@ import Achievement from "../assets/icon_achievements.svg";
 import Challenge from "../assets/icon_challenge.svg";
 import Emotion from "../assets/icon_emotions.svg";
 import Pencil from "../assets/icon_pencil.svg";
+import Beverage from "../assets/icon_beverage.svg";
+import Music from "../assets/icon_music.svg";
+import Food from "../assets/icon_food.svg";
+import Video from "../assets/icon_video.svg";
+import { BASE_URL } from "../components/BASE_URL";
+import axios from "axios";
+
+const activityImages = [Beverage, Music, Food, Video];
+const messages = [
+    "오늘은 음료수가 생각나네요!",
+    "음악과 함께하는 하루 어떠세요?",
+    "맛있는 음식으로 기분 전환!",
+    "영상 한 편 보면서 쉬어가요!"
+];
 
 const categoryImages = {
     "소통": Communication,
@@ -23,11 +37,17 @@ const categoryImages = {
 };
 
 const DailyDetailPage = () => {
+
     const navigate = useNavigate();
     const { id } = useParams();
     const [like, setLike] = useState(false);
+    const [showModal, setShowModal] = useState(false);
+    const [randomIndex] = useState(() => Math.floor(Math.random() * activityImages.length));
+    const [showTextModal, setShowTextModal] = useState(false);
+    const [apiText, setApiText] = useState('');
+    const [showDrawingModal, setShowDrawingModal] = useState(false);
+    const [drawingApiText, setDrawingApiText] = useState('');
     
-    // mockData에서 해당 id의 데이터 찾기
     const diaryData = mockData.diaries.find(diary => diary.id === parseInt(id)) || {
         id: 0,
         keyword: "",
@@ -37,6 +57,22 @@ const DailyDetailPage = () => {
         views: 0,
         likes: 0
     };
+
+    useEffect(() => {
+        console.log(id)
+        const fetchDiary = async () => {
+            try {
+                const response = await axios.get(`https://hy-thon.kro.kr:444/diaries/11`); // API endpoint
+                if (!response.ok) {
+                    throw new Error("Failed to fetch diary data");
+                }
+                console.log(response.data)
+            } catch (error) {
+                console.error("Error fetching diary:", error);
+            }
+        };
+        fetchDiary();
+    }, [id]);
 
     const handleLike = () => {
         setLike(!like);
@@ -67,12 +103,18 @@ const DailyDetailPage = () => {
                     {diaryData.image_data && (
                         <DrawingImage src={diaryData.image_data} alt="diary drawing" />
                     )}
+                    <EditButton onClick={() => setShowDrawingModal(true)}>
+                        <img src={Pencil} alt="edit" width="32" height="32" />
+                    </EditButton>
                 </DrawingBox>
     
                 <TextBox>
                     <TextContent>
                         {diaryData.content}
                     </TextContent>
+                    <EditButton onClick={() => setShowTextModal(true)}>
+                        <img src={Pencil} alt="edit" width="32" height="32" />
+                    </EditButton>
                 </TextBox>
     
                 <ActionBar>
@@ -86,17 +128,52 @@ const DailyDetailPage = () => {
                                 추천
                             </UpButton>
                         </StyledUpButtonWrapper>
-                        <WriteButton>
+                        <WriteButton onClick={() => setShowModal(true)}>
                             내일 뭐하지? ✨
                         </WriteButton>
                     </ButtonContainer>
                 </ActionBar>
             </Content>
+
+            {showModal && (
+                <ModalOverlay>
+                    <Modal>
+                        <CloseButton onClick={() => setShowModal(false)}>×</CloseButton>
+                        <ModalTitle>오늘 하루도 고생 많았어요</ModalTitle>
+                        <ModalImage src={activityImages[randomIndex]} alt="activity suggestion" />
+                        <ModalText>내일은 "{messages[randomIndex]}"</ModalText>
+                    </Modal>
+                </ModalOverlay>
+            )}
+
+            {showDrawingModal && (
+                <ModalOverlay>
+                    <Modal>
+                        <CloseButton onClick={() => setShowDrawingModal(false)}>×</CloseButton>
+                        <ModalTitle>오늘 하루도 고생 많았어요</ModalTitle>
+                        <DrawingApiBox>
+                            {drawingApiText || "AI 그림 들어가는 곳입니다"}
+                        </DrawingApiBox>
+                        <ModalText>AI가 재해석한 하루님의 그림 어떠신가요?</ModalText>
+                    </Modal>
+                </ModalOverlay>
+            )}
+
+            {showTextModal && (
+                <ModalOverlay>
+                    <Modal>
+                        <CloseButton onClick={() => setShowTextModal(false)}>×</CloseButton>
+                        <ModalTitle>오늘 하루도 고생 많았어요</ModalTitle>
+                        <ModalTextBox>
+                            {apiText || "AI 텍스트 들어가는 곳입니다"}
+                        </ModalTextBox>
+                        <ModalText>AI가 재해석한 하루님의 하루 어떠신가요?</ModalText>
+                    </Modal>
+                </ModalOverlay>
+            )}
         </Container>
     );
 };
-
-export default DailyDetailPage;
 
 // Styled Components
 const Container = styled.div`
@@ -127,17 +204,6 @@ const DrawingBox = styled.div`
     justify-content: center;
     align-items: center;
     margin-bottom: 24px;
-    button {
-        position: absolute;
-        bottom: 12px;
-        right: 12px;
-        width: 32px;
-        height: 32px;
-        padding: 0;
-        background: none;
-        border: none;
-        cursor: pointer;
-    }
 `;
 
 const TextBox = styled.div`
@@ -145,6 +211,28 @@ const TextBox = styled.div`
     background: white;
     border-radius: 12px;
     box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.4);
+    position: relative;
+`;
+
+const EditButton = styled.button`
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    
+    img {
+        width: 100%;
+        height: 100%;
+    }
+    
+    &:hover {
+        opacity: 0.8;
+    }
 `;
 
 const Header = styled.div`
@@ -153,17 +241,6 @@ const Header = styled.div`
     align-items: flex-start;
     margin-bottom: 24px;
     position: relative;
-    button {
-        position: absolute;
-        bottom: 12px;
-        right: 12px; 
-        width: 32px;
-        height: 32px;
-        padding: 0;
-        background: none;
-        border: none;
-        cursor: pointer;
-    }
 `;
 
 const AuthorSection = styled.div`
@@ -210,6 +287,18 @@ const DrawingImage = styled.img`
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
+`;
+
+const DrawingApiBox = styled.div`
+    width: 578px;
+    height: 253px;
+    border: 1px solid #DDDDDD;
+    border-radius: 4px;
+    padding: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #333;
 `;
 
 const TextContent = styled.div`
@@ -268,3 +357,74 @@ const StyledUpButtonWrapper = styled.div`
         flex: none !important;
     }
 `;
+
+const ModalOverlay = styled.div`
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+`;
+
+const Modal = styled.div`
+    background: white;
+    padding: 32px;
+    border-radius: 12px;
+    position: relative;
+    width: 642px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+`;
+
+const CloseButton = styled.button`
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+`;
+
+const ModalTitle = styled.h2`
+    font-size: 24px;
+    color: #333;
+    margin: 0;
+`;
+
+const ModalImage = styled.img`
+    width: 336px;
+    height: 240px;
+    object-fit: contain;
+`;
+
+const ModalText = styled.p`
+    font-size: 16px;
+    color: #333;
+    margin: 0;
+    text-align: center;
+`;
+
+const ModalTextBox = styled.div`
+    width: 578px;
+    height: 253px;
+    border: 1px solid #DDDDDD;
+    border-radius: 4px;
+    padding: 16px;
+    font-family: "UhBee Seulvely", sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #333;
+    white-space: pre-wrap;
+    overflow-y: auto;
+`;
+
+export default DailyDetailPage;

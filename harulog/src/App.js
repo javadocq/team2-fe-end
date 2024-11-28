@@ -16,7 +16,7 @@ const queryClient = new QueryClient();
 
 const Container = styled.div`
     display : flex;
-    height : 1300px;
+    height : 100vh;
     width : 100%;
     justify-content : center;
     background: #FEFFFB;
