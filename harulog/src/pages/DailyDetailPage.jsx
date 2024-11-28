@@ -47,36 +47,48 @@ const DailyDetailPage = () => {
     const [apiText, setApiText] = useState('');
     const [showDrawingModal, setShowDrawingModal] = useState(false);
     const [drawingApiText, setDrawingApiText] = useState('');
-    
-    const diaryData = mockData.diaries.find(diary => diary.id === parseInt(id)) || {
-        id: 0,
-        keyword: "",
-        createdAt: "",
-        content: "",
-        image_data: Drawing,
-        views: 0,
-        likes: 0
-    };
+    const [diaryData, setDiaryData] = useState([]);
+    const [date, setDate] = useState("");
 
     useEffect(() => {
-        console.log(id)
         const fetchDiary = async () => {
             try {
-                const response = await axios.get(`https://hy-thon.kro.kr:444/diaries/11`); // API endpoint
-                if (!response.ok) {
-                    throw new Error("Failed to fetch diary data");
-                }
-                console.log(response.data)
+                const response = await axios.get(`${BASE_URL}/diaries/${id}`); 
+                setDiaryData(response.data);
+                setDate(response.data.created_at);
+                console.log(response.data);
             } catch (error) {
                 console.error("Error fetching diary:", error);
             }
         };
         fetchDiary();
-    }, [id]);
+    }, [id, like]);
+
+    useEffect(() => {
+        if (apiText) {
+            console.log("API Text Updated:", apiText);
+        }
+    }, [apiText]);
 
     const handleLike = () => {
-        setLike(!like);
+        setLike((prev) => !prev);
     };
+
+    const handleWriteAPI = () => {
+        setShowTextModal(true);
+        const fetchWriteAPI = async () => {
+            try {
+                const response = await axios.post(`${BASE_URL}/diaries/adaptation`, {
+                    id : id,
+                    password : "1234",
+                }); 
+                setApiText(response.data.adapted_content);
+            } catch (error) {
+                console.error("Error fetching diary:", error);
+            }
+        };
+        fetchWriteAPI();
+    }
 
     return (
         <Container>
@@ -85,17 +97,17 @@ const DailyDetailPage = () => {
                     <CategoryAndDate>
                         <CategoryLabel>
                             <img 
-                                src={categoryImages[diaryData.keyword]} 
+                                src={categoryImages[diaryData.category]} 
                                 alt="category" 
                                 width="32" 
                                 height="32" 
                             />
-                            {diaryData.keyword}
+                            {diaryData.category}
                         </CategoryLabel>
                     </CategoryAndDate>
                     <AuthorSection>
                         <Author>하루님의 로그</Author>
-                        <Date>{diaryData.createdAt}</Date>
+                        <Date>{date.slice(0,10)}</Date>
                     </AuthorSection>
                 </Header>
     
@@ -112,7 +124,7 @@ const DailyDetailPage = () => {
                     <TextContent>
                         {diaryData.content}
                     </TextContent>
-                    <EditButton onClick={() => setShowTextModal(true)}>
+                    <EditButton onClick={() => handleWriteAPI()}>
                         <img src={Pencil} alt="edit" width="32" height="32" />
                     </EditButton>
                 </TextBox>
@@ -122,6 +134,7 @@ const DailyDetailPage = () => {
                     <ButtonContainer>
                         <StyledUpButtonWrapper>
                             <UpButton 
+                                diaryId={id}
                                 isLiked={like} 
                                 onLike={handleLike}
                             >
@@ -165,7 +178,7 @@ const DailyDetailPage = () => {
                         <CloseButton onClick={() => setShowTextModal(false)}>×</CloseButton>
                         <ModalTitle>오늘 하루도 고생 많았어요</ModalTitle>
                         <ModalTextBox>
-                            {apiText || "AI 텍스트 들어가는 곳입니다"}
+                            {apiText}
                         </ModalTextBox>
                         <ModalText>AI가 재해석한 하루님의 하루 어떠신가요?</ModalText>
                     </Modal>
