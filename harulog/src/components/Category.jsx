@@ -34,7 +34,7 @@ const CategoryBox = styled.div`
 `;
 
 export default function Category({ category, select, BeforeSelected }) {
-    const [selectedCategory, setSelectedCategory] = useState(BeforeSelected !== "" ? BeforeSelected : null); // 선택된 카테고리 상태
+    const [selectedCategory, setSelectedCategory] = useState(BeforeSelected !== 0 ? BeforeSelected : null); // 선택된 카테고리 상태
 
 
     useEffect(() => {
@@ -42,6 +42,12 @@ export default function Category({ category, select, BeforeSelected }) {
             setSelectedCategory(BeforeSelected);
         }
     }, [BeforeSelected]);
+
+    useEffect(() => {
+        if (selectedCategory !== null) {
+            select(selectedCategory);
+        }
+    }, [selectedCategory, select]);
 
     function handleClickCategory(id) {
         if (selectedCategory !== id) {

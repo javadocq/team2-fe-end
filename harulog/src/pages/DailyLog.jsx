@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useDiaryContext } from "../components/DiaryContext";
+import { useQueryClient } from '@tanstack/react-query';  // 추가
 
 //import components
 import Category from "../components/Category";
@@ -142,6 +142,7 @@ const ButtonText = styled.h2`
 export default function DailyLog() {
     const queryClient = useQueryClient();  // 추가
     const [searchParams] = useSearchParams();
+    const queryClient = useQueryClient();  // 추가
     const navigate = useNavigate();
     const keyword = searchParams.get("keyword");
     const [name, setName] = useState("");
@@ -155,7 +156,7 @@ export default function DailyLog() {
         {id : 5, img : Challenge, name : "도전"},
         {id : 6, img : Emotions, name : "감정"},
     ]);
-    const [selectedCategoryId, setSelectedCategoryId] = useState(1);
+    const [selectedCategory, setSelectedCategory] = useState(0);
     const [randomCategory, setRandomCategory] = useState("");
     const [logText, setLogText] = useState("");
     const [drawingImage, setDrawingImage] = useState("");  
@@ -168,15 +169,14 @@ export default function DailyLog() {
     };
 
     useEffect(() => {
-        console.log(keyword);
         setRandomCategory(getRandomCategory());
-        if(keyword !== "") {
-            setSelectedCategoryId(keyword);
+        if(keyword !== 0) {
+            setSelectedCategory(keyword);
         }
     }, [])
 
-    function handleCategorySelect(id) {
-        setSelectedCategoryId(id); 
+    function handleCategorySelect(categoryId) {
+        setSelectedCategory(categoryId); 
     };
 
     function handleDrawingUpdate(image) {
@@ -202,17 +202,20 @@ export default function DailyLog() {
                     content: logText,
                     username: name,
                     password: password,
-                    category_id: selectedCategoryId
-                })
+                    category: selectedCategory
+                });
+                
+                // 캐시 무효화를 기다림
                 await queryClient.invalidateQueries({ queryKey: ['diaries'] });
-                window.scrollTo(0, 0);
+                // 데이터가 갱신된 후 페이지 이동
                 navigate('/');
             } catch(error) {
-                console.log("failed post diary : ", error);
+                console.error("failed post diary : ", error);
             }
-        }
+        };
         createDiary();
     }
+
 
     return (
         <Container>
@@ -243,7 +246,7 @@ export default function DailyLog() {
                 <TodayLog value={logText} onChange={handleLogTextChange}/>
                 <TodayDrawing onDrawingUpdate={handleDrawingUpdate}/>
                 <Button disabled={!isFormValid || password.length < 4 || password.length > 20} onClick={handleLog}>
-                    <ButtonText>로그 작성하러 가기</ButtonText>
+                    <ButtonText>로그 작성 완료</ButtonText>
                     <img src={logButton} />
                 </Button>
             </WriteBox>
