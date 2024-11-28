@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useQueryClient } from '@tanstack/react-query';  // 추가
 
 //import components
 import Category from "../components/Category";
@@ -139,19 +140,20 @@ const ButtonText = styled.h2`
 
 export default function DailyLog() {
     const [searchParams] = useSearchParams();
+    const queryClient = useQueryClient();  // 추가
     const navigate = useNavigate();
     const keyword = searchParams.get("keyword");
     const [name, setName] = useState("");
     const [password, setPassword] = useState("");
     const [category, setCategory] = useState([
-        {img : Communication, name : "소통"},
-        {img : Thanks, name : "감사"},
-        {img : Rest, name : "휴식"},
-        {img : Achievements, name : "성취"},
-        {img : Challenge, name : "도전"},
-        {img : Emotions, name : "감정"},
+        {id : 1, img : Communication, name : "소통"},
+        {id : 2, img : Thanks, name : "감사"},
+        {id : 3, img : Rest, name : "휴식"},
+        {id : 4, img : Achievements, name : "성취"},
+        {id : 5, img : Challenge, name : "도전"},
+        {id : 6, img : Emotions, name : "감정"},
     ]);
-    const [selectedCategory, setSelectedCategory] = useState("");
+    const [selectedCategory, setSelectedCategory] = useState(0);
     const [randomCategory, setRandomCategory] = useState("");
     const [logText, setLogText] = useState("");
     const [drawingImage, setDrawingImage] = useState("");  
@@ -164,15 +166,14 @@ export default function DailyLog() {
     };
 
     useEffect(() => {
-        console.log(keyword);
         setRandomCategory(getRandomCategory());
-        if(keyword !== "") {
+        if(keyword !== 0) {
             setSelectedCategory(keyword);
         }
     }, [])
 
-    function handleCategorySelect(categoryName) {
-        setSelectedCategory(categoryName); 
+    function handleCategorySelect(categoryId) {
+        setSelectedCategory(categoryId); 
     };
 
     function handleDrawingUpdate(image) {
@@ -193,20 +194,25 @@ export default function DailyLog() {
         e.preventDefault();
         const createDiary = async() => {
             try {
-                const response = axios.post(`${BASE_URL}/diaries`,{
+                await axios.post(`${BASE_URL}/diaries`, {
                     image_data: drawingImage,
                     content: logText,
                     username: name,
-                    password: password
-                })
-                console.log(response);
+                    password: password,
+                    category: selectedCategory
+                });
+                
+                // 캐시 무효화를 기다림
+                await queryClient.invalidateQueries({ queryKey: ['diaries'] });
+                // 데이터가 갱신된 후 페이지 이동
+                navigate('/');
             } catch(error) {
-                console.log("failed post diary : ", error);
+                console.error("failed post diary : ", error);
             }
-        }
+        };
         createDiary();
-        navigate('/');
     }
+
 
     return (
         <Container>
@@ -237,7 +243,7 @@ export default function DailyLog() {
                 <TodayLog value={logText} onChange={handleLogTextChange}/>
                 <TodayDrawing onDrawingUpdate={handleDrawingUpdate}/>
                 <Button disabled={!isFormValid || password.length < 4 || password.length > 20} onClick={handleLog}>
-                    <ButtonText>로그 작성하러 가기</ButtonText>
+                    <ButtonText>로그 작성 완료</ButtonText>
                     <img src={logButton} />
                 </Button>
             </WriteBox>

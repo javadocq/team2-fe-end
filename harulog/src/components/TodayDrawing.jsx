@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 
 //import assets
-import Draw from "../assets/icon_draw.svg";
-import Eraser from "../assets/icon_eraser.svg";
-import Initialize from "../assets/icon_refresh.svg";
+import Draw from "../assets/icon_checked_draw.svg";
+import Un_Draw from "../assets/icon_unchecked_draw.svg";
+import Eraser from "../assets/icon_checked_eraser.svg";
+import Un_Eraser from "../assets/icon_unchecked_eraser.svg";
+import Initialize from "../assets/icon_unchecked_refresh.svg";
 
 //import style
 import styled from "styled-components";
@@ -98,7 +100,7 @@ export default function TodayDrawing({ onDrawingUpdate }) {
     const [useCtx, setUseCtx] = useState(null);
     const [painting, setPainting] = useState(false);
     const [showText, setShowText] = useState(true);
-    const [selectedTool, setSelectedTool] = useState(null);
+    const [selectedTool, setSelectedTool] = useState('draw');
     const [eraserPosition, setEraserPosition] = useState(null);
 
     useEffect(() => {
@@ -191,12 +193,12 @@ export default function TodayDrawing({ onDrawingUpdate }) {
             )}
             <DrawTools>
                 <DrawIcon
-                    src={Draw}
+                    src={selectedTool === 'draw' ? Draw : Un_Draw}
                     selected={selectedTool === 'draw'}
                     onClick={() => handleDraw()}
                 />
                 <EraserIcon
-                    src={Eraser}
+                    src={selectedTool === 'eraser' ? Eraser : Un_Eraser}
                     selected={selectedTool === 'eraser'}
                     onClick={() => handleEraser()}
                 />
