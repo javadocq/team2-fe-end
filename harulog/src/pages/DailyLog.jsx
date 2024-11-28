@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useDiaryContext } from "../components/DiaryContext";
 
 //import components
 import Category from "../components/Category";
@@ -138,24 +140,26 @@ const ButtonText = styled.h2`
 
 
 export default function DailyLog() {
+    const queryClient = useQueryClient();  // 추가
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
     const keyword = searchParams.get("keyword");
     const [name, setName] = useState("");
     const [password, setPassword] = useState("");
+    const { categories } = useDiaryContext();
     const [category, setCategory] = useState([
-        {img : Communication, name : "소통"},
-        {img : Thanks, name : "감사"},
-        {img : Rest, name : "휴식"},
-        {img : Achievements, name : "성취"},
-        {img : Challenge, name : "도전"},
-        {img : Emotions, name : "감정"},
+        {id : 1, img : Communication, name : "소통"},
+        {id : 2, img : Thanks, name : "감사"},
+        {id : 3, img : Rest, name : "휴식"},
+        {id : 4, img : Achievements, name : "성취"},
+        {id : 5, img : Challenge, name : "도전"},
+        {id : 6, img : Emotions, name : "감정"},
     ]);
-    const [selectedCategory, setSelectedCategory] = useState("");
+    const [selectedCategoryId, setSelectedCategoryId] = useState(1);
     const [randomCategory, setRandomCategory] = useState("");
     const [logText, setLogText] = useState("");
     const [drawingImage, setDrawingImage] = useState("");  
-    const isFormValid = name !== "" && password !== "" && selectedCategory !== "" && logText.trim() !== "";
+    const isFormValid = name !== "" && password !== "" && selectedCategoryId !== 0 && logText.trim() !== "";
     const [showPassword, setShowPassword] = useState(false);
 
     const getRandomCategory = () => {
@@ -167,12 +171,12 @@ export default function DailyLog() {
         console.log(keyword);
         setRandomCategory(getRandomCategory());
         if(keyword !== "") {
-            setSelectedCategory(keyword);
+            setSelectedCategoryId(keyword);
         }
     }, [])
 
-    function handleCategorySelect(categoryName) {
-        setSelectedCategory(categoryName); 
+    function handleCategorySelect(id) {
+        setSelectedCategoryId(id); 
     };
 
     function handleDrawingUpdate(image) {
@@ -193,19 +197,21 @@ export default function DailyLog() {
         e.preventDefault();
         const createDiary = async() => {
             try {
-                const response = axios.post(`${BASE_URL}/diaries`,{
+                await axios.post(`${BASE_URL}/diaries`, {
                     image_data: drawingImage,
                     content: logText,
                     username: name,
-                    password: password
+                    password: password,
+                    category_id: selectedCategoryId
                 })
-                console.log(response);
+                await queryClient.invalidateQueries({ queryKey: ['diaries'] });
+                window.scrollTo(0, 0);
+                navigate('/');
             } catch(error) {
                 console.log("failed post diary : ", error);
             }
         }
         createDiary();
-        navigate('/');
     }
 
     return (
@@ -233,7 +239,7 @@ export default function DailyLog() {
                     <Eye onClick={handleShowPassword}>{showPassword ? <img src={ShowEye} /> : <img src={hideEye} />}</Eye>
                 </Password>
                 <Text>카테고리*</Text>
-                <Category category={category} select={handleCategorySelect} BeforeSelected={selectedCategory}/>
+                <Category category={category} select={handleCategorySelect} BeforeSelected={selectedCategoryId}/>
                 <TodayLog value={logText} onChange={handleLogTextChange}/>
                 <TodayDrawing onDrawingUpdate={handleDrawingUpdate}/>
                 <Button disabled={!isFormValid || password.length < 4 || password.length > 20} onClick={handleLog}>

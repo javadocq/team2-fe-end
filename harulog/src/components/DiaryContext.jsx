@@ -2,26 +2,44 @@ import React, { createContext, useState, useContext } from "react";
 import mockData from "../mocks/mockData.json";
 import { useQuery } from "@tanstack/react-query";
 import CardBGImage from "../assets/CardBGImage.png";
+import axios from "axios";
+import { BASE_URL } from "./BASE_URL";
 const DiaryContext = createContext();
 
 export const DiaryProvider = ({ children }) => {
-  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState(null);
   const [searchContent, setSearchContent] = useState("");
   const [isScrolled, setIsScrolled] = useState(false);
-
+  
+  // 다이어리 데이터 가져오기
   const { data: diariesData = [] } = useQuery({
     queryKey: ["diaries"],
-    queryFn: () => {
-      return mockData.diaries.map((diary) => ({
-        ...diary,
-        image_data: CardBGImage,
-      }));
+    queryFn: async () => {
+      try {
+        const response = await axios.get(`${BASE_URL}/diaries`);
+        return response.data.map((diary) => ({
+          id: diary.id,
+          image_data: diary.image_data,
+          category_id: diary.category_id,
+          content: diary.content,
+          adapted_content: diary.adapted_content,
+          recommended_content: diary.recommended_content,
+          recommended_category_id: diary.recommended_category_id,
+          likes: diary.likes,
+          views: diary.views,
+          username: diary.username,
+          created_at: diary.created_at
+        }));
+      } catch (error) {
+        console.error("Failed to fetch diaries:", error);
+        return [];
+      }
     },
   });
 
   // 필터링된 다이어리 계산
   const filteredDiaries = diariesData
-    .filter((diary) => !selectedCategory || diary.keyword === selectedCategory)
+    .filter((diary) => !selectedCategoryId || diary.category_id === selectedCategoryId)
     .filter(
       (diary) =>
         diary.content &&
@@ -40,9 +58,9 @@ export const DiaryProvider = ({ children }) => {
     }
   };
 
-  const handleCategoryClick = (categoryName) => {
-    setSelectedCategory(
-      selectedCategory === categoryName ? null : categoryName
+  const handleCategoryClick = (categoryId) => {
+    setSelectedCategoryId(
+      selectedCategoryId === categoryId ? null : categoryId
     );
     scrollToCategorySection();
   };
@@ -56,8 +74,9 @@ export const DiaryProvider = ({ children }) => {
   };
 
   const value = {
-    selectedCategory,
-    setSelectedCategory,
+    diariesData,
+    selectedCategoryId,
+    setSelectedCategoryId,
     searchContent,
     setSearchContent,
     isScrolled,

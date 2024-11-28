@@ -139,7 +139,7 @@ const Nav = styled.div`
   z-index: 1000;
   background: #ffffff;
   height: 56px;
-
+  max-width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
