@@ -152,8 +152,15 @@ const MainPage = () => {
                 <WriteButton
                   onClick={() => {
                     window.scrollTo(0, 0);
-                    const categoryName = categories.find(cat => cat.id === diary.category_id)?.categoryName || '';
-                    navigate(`/DailyLog?category_id=${diary.category_id}`);
+                    const category = categories.find(cat => cat.id === diary.category_id);
+                    if (category) {
+                      navigate(`/DailyLog`, {
+                        state: { 
+                          selectedCategoryId: diary.category_id,
+                          categoryName: category.categoryName
+                        }
+                      });
+                    }
                   }}
                 >
                   {`"${categories.find(cat => cat.id === diary.category_id)?.categoryName || ''}"${
