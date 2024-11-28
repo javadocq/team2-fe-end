@@ -23,7 +23,6 @@ const Text = styled.h2`
     font-style: normal;
     font-weight: 500;
     line-height: normal;
-    margin-top: 24px;
 `;
 
 const PlaceHolderText = styled.h2`
@@ -115,7 +114,7 @@ export default function TodayDrawing({ onDrawingUpdate }) {
     }, []);
 
     function draw(e) {
-        const positionX = e.nativeEvent.offsetX -10; //현재 x값 위치
+        const positionX = e.nativeEvent.offsetX -15; //현재 x값 위치
         const positionY = e.nativeEvent.offsetY -10; //현재 Y값 위치
 
         if (selectedTool === 'eraser') {
@@ -188,7 +187,7 @@ export default function TodayDrawing({ onDrawingUpdate }) {
             />
             {eraserPosition && selectedTool === 'eraser' && (
                 <EraserOverlay
-                    style={{ top: eraserPosition.y + 30, left: eraserPosition.x }}
+                    style={{ top: eraserPosition.y + 30, left: eraserPosition.x + 5 }}
                 />
             )}
             <DrawTools>
