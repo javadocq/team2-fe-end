@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 
 //import components
 import UpButton from "../components/UpButton";
-import { DiaryProvider } from "../components/DiaryContext";
+import { useDiaryContext } from "../components/DiaryContext";
 //import assets
 import WriteButtonImage from "../assets/icon_writebutton.svg";
 import Communication from "../assets/icon_communication.svg";
@@ -25,6 +25,7 @@ import Smile from "../assets/icon_smile.svg";
 const MainPage = () => {
   const navigate = useNavigate();
   const [selectedCategoryId, setSelectedCategoryId] = useState(0);
+  const { searchContent } = useDiaryContext();
   const [like, setLike] = useState(() => {
     const savedLikes = localStorage.getItem('diaryLikes');
     return savedLikes ? JSON.parse(savedLikes) : {};
@@ -45,8 +46,12 @@ const MainPage = () => {
   });
 
   const filteredDiaries = diariesData.filter(diary => {
-    if (selectedCategoryId === 0) return true;
-    return diary.category_id === selectedCategoryId;
+    const matchesCategory = selectedCategoryId === 0 || diary.category_id === selectedCategoryId;
+    const matchesSearch = searchContent === "" || 
+      diary.content.toLowerCase().includes(searchContent.toLowerCase()) ||
+      diary.username.toLowerCase().includes(searchContent.toLowerCase());
+    
+    return matchesCategory && matchesSearch;
   });
 
   const scrollToCategorySection = () => {
