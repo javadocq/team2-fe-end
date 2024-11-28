@@ -43,10 +43,16 @@ export default function Category({ category, select, BeforeSelected }) {
         }
     }, [BeforeSelected]);
 
-    function handleClickCategory(name) {
-        if (selectedCategory !== name) {
-            setSelectedCategory(name); 
-            select(name); 
+    useEffect(() => {
+        if (selectedCategory !== null) {
+            select(selectedCategory);
+        }
+    }, [selectedCategory, select]);
+
+    function handleClickCategory(id) {
+        if (selectedCategory !== id) {
+            setSelectedCategory(id); 
+            select(id); 
         }
     }
 
@@ -57,8 +63,8 @@ export default function Category({ category, select, BeforeSelected }) {
                     key={key}
                     isFirst={key === 0}
                     isLast={key === category.length - 1}
-                    isSelected={selectedCategory === item.name} // 선택된 카테고리 확인
-                    onClick={() => handleClickCategory(item.name)} // 클릭 시 handleClickCategory 실행
+                    isSelected={selectedCategory === item.id} // 선택된 카테고리 확인
+                    onClick={() => handleClickCategory(item.id)} // 클릭 시 handleClickCategory 실행
                 >
                     <img src={item.img} alt={item.name} />
                     <div>{item.name}</div>
