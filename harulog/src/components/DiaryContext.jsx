@@ -1,32 +1,30 @@
 import React, { createContext, useState, useContext } from "react";
 import mockData from "../mocks/mockData.json";
 import { useQuery } from "@tanstack/react-query";
-import CardBGImage from "../assets/CardBGImage.png";
+import axios from "axios";
+import { BASE_URL } from "./BASE_URL";
 const DiaryContext = createContext();
 
 export const DiaryProvider = ({ children }) => {
-  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState(null);
   const [searchContent, setSearchContent] = useState("");
   const [isScrolled, setIsScrolled] = useState(false);
-
+  
+  // 다이어리 데이터 가져오기
   const { data: diariesData = [] } = useQuery({
-    queryKey: ["diaries"],
-    queryFn: () => {
-      return mockData.diaries.map((diary) => ({
-        ...diary,
-        image_data: CardBGImage,
-      }));
-    },
+    queryKey: ['diaries'],
+    queryFn: async () => {
+      const response = await axios.get(`${BASE_URL}/diaries`);
+      return response.data;
+    }
   });
 
   // 필터링된 다이어리 계산
-  const filteredDiaries = diariesData
-    .filter((diary) => !selectedCategory || diary.keyword === selectedCategory)
-    .filter(
-      (diary) =>
-        diary.content &&
-        diary.content.toLowerCase().includes(searchContent.toLowerCase())
-    );
+  // filteredDiaries 로직 수정
+  const filteredDiaries = diariesData.filter(diary => {
+    if (selectedCategoryId === 0) return true;
+    return diary.category_id === selectedCategoryId;
+  });
 
   // 카테고리 섹션으로 스크롤 이동하는 함수
   const scrollToCategorySection = () => {
@@ -40,9 +38,9 @@ export const DiaryProvider = ({ children }) => {
     }
   };
 
-  const handleCategoryClick = (categoryName) => {
-    setSelectedCategory(
-      selectedCategory === categoryName ? null : categoryName
+  const handleCategoryClick = (categoryId) => {
+    setSelectedCategoryId(
+      selectedCategoryId === categoryId ? null : categoryId
     );
     scrollToCategorySection();
   };
@@ -56,8 +54,9 @@ export const DiaryProvider = ({ children }) => {
   };
 
   const value = {
-    selectedCategory,
-    setSelectedCategory,
+    diariesData,
+    selectedCategoryId,
+    setSelectedCategoryId,
     searchContent,
     setSearchContent,
     isScrolled,

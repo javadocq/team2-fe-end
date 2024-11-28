@@ -15,20 +15,36 @@ import Achievement from "../assets/icon_achievements.svg";
 import Challenge from "../assets/icon_challenge.svg";
 import Emotion from "../assets/icon_emotions.svg";
 import { useDiaryContext } from "./DiaryContext";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import { BASE_URL } from "./BASE_URL";
 
 const NavBar = () => {
   const { 
-    selectedCategory,
     searchContent, 
     setSearchContent,
     isScrolled,
-    handleCategoryClick,
+    scrollToCategorySection,
     handleScroll  // context에서 가져오기
   } = useDiaryContext();
-
+  const [selectedCategoryId, setSelectedCategoryId] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
   const isMainPage = location.pathname === "/";
+
+  const { data: diariesData = [] } = useQuery({
+    queryKey: ['diaries'],
+    queryFn: async () => {
+      const response = await axios.get(`${BASE_URL}/diaries`, {
+        params: {
+          orderBy: 'created_at',  // 정렬 기준
+          limit: 100  
+        }
+      });
+      console.log(response.data);
+      return response.data;
+    }
+  });
 
   // 스크롤 상태에 따른 Nav 구성
   useEffect(() => {
@@ -88,8 +104,11 @@ const NavBar = () => {
               {category.map((category) => (
                 <Category
                   key={category.id}
-                  onClick={() => handleCategoryClick(category.categoryName)}
-                  $isSelected={selectedCategory === category.categoryName}
+                  onClick={() => {
+                    setSelectedCategoryId(category.id);
+                    scrollToCategorySection();
+                  }}
+                  $isSelected={selectedCategoryId === category.id}
                 >
                   <CategoryImage
                     src={category.image}
@@ -139,7 +158,7 @@ const Nav = styled.div`
   z-index: 1000;
   background: #ffffff;
   height: 56px;
-
+  max-width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -164,7 +183,7 @@ const SearchBar = styled.div`
 `;
 
 const SearchInput = styled.input`
-  width: 176px;
+  width: 140px;
   height: 40px;
   margin: 8px 0px;
   border: 1px solid #ddd;
@@ -172,6 +191,7 @@ const SearchInput = styled.input`
   font-size: 16px;
   outline: none;
   padding-left: 15px;
+  padding-right: 40px;
   &:focus {
     border-color: #6750a4;
   }
