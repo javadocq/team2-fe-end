@@ -6,9 +6,9 @@ import { BASE_URL } from "./BASE_URL";
 const DiaryContext = createContext();
 
 export const DiaryProvider = ({ children }) => {
-  const [selectedCategoryId, setSelectedCategoryId] = useState(null);
   const [searchContent, setSearchContent] = useState("");
   const [isScrolled, setIsScrolled] = useState(false);
+  const [selectedCategoryId, setSelectedCategoryId] = useState(0);
   
   // 다이어리 데이터 가져오기
   const { data: diariesData = [] } = useQuery({

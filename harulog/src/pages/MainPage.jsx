@@ -20,12 +20,12 @@ import Relax from "../assets/icon_relax.svg";
 import Achievement from "../assets/icon_achievements.svg";
 import Challenge from "../assets/icon_challenge.svg";
 import Emotion from "../assets/icon_emotions.svg";
-import Smile from "../assets/icon_smile.svg";
+
 
 const MainPage = () => {
   const navigate = useNavigate();
-  const [selectedCategoryId, setSelectedCategoryId] = useState(0);
-  const { searchContent } = useDiaryContext();
+  // const [selectedCategoryId, setSelectedCategoryId] = useState(0);
+  const { searchContent, selectedCategoryId, setSelectedCategoryId } = useDiaryContext();
   const [like, setLike] = useState(() => {
     const savedLikes = localStorage.getItem('diaryLikes');
     return savedLikes ? JSON.parse(savedLikes) : {};
