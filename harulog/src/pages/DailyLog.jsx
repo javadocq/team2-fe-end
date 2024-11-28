@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 //import components
 import Category from "../components/Category";
@@ -141,6 +141,8 @@ export default function DailyLog() {
     const queryClient = useQueryClient();  // 추가
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
+    const location = useLocation();
+    const { selectedCategoryId } = location.state || {};
     const keyword = searchParams.get("keyword");
     const [name, setName] = useState("");
     const [password, setPassword] = useState("");
@@ -152,27 +154,25 @@ export default function DailyLog() {
         {id : 5, img : Challenge, name : "도전"},
         {id : 6, img : Emotions, name : "감정"},
     ]);
-    const [selectedCategoryId, setSelectedCategoryId] = useState(0);
     const [randomCategory, setRandomCategory] = useState("");
     const [logText, setLogText] = useState("");
     const [drawingImage, setDrawingImage] = useState("");  
     const isFormValid = name !== "" && password !== "" && selectedCategoryId !== 0 && logText.trim() !== "";
     const [showPassword, setShowPassword] = useState(false);
-
+    const [selectedCategory, setSelectedCategory] = useState(selectedCategoryId || null);
     const getRandomCategory = () => {
         const randomIndex = Math.floor(Math.random() * category.length);
         return category[randomIndex].name;
     };
 
     useEffect(() => {
-        setRandomCategory(getRandomCategory());
-        if(keyword !== 0) {
-            setSelectedCategoryId(keyword);
+        if (selectedCategoryId) {
+          setSelectedCategory(selectedCategoryId);
         }
-    }, [])
+    }, [selectedCategoryId])
 
     function handleCategorySelect(categoryId) {
-        setSelectedCategoryId(categoryId); 
+        setSelectedCategory(categoryId); 
     };
 
     function handleDrawingUpdate(image) {
@@ -195,7 +195,7 @@ export default function DailyLog() {
             try {
                 const response = await axios.post(`${BASE_URL}/diaries`, {
                     image_data: drawingImage,
-                    category_id: selectedCategoryId,
+                    category_id: selectedCategory,
                     content: logText,
                     username: name,
                     password: password
