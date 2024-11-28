@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import { BASE_URL } from "../components/BASE_URL";
 
 //import style
 import styled from "styled-components";
@@ -8,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 
 //import components
 import UpButton from "../components/UpButton";
-import { useDiaryContext } from "../components/DiaryContext";
+import { DiaryProvider } from "../components/DiaryContext";
 //import assets
 import WriteButtonImage from "../assets/icon_writebutton.svg";
 import Communication from "../assets/icon_communication.svg";
@@ -21,21 +24,41 @@ import Smile from "../assets/icon_smile.svg";
 
 const MainPage = () => {
   const navigate = useNavigate();
-  const { selectedCategoryId,
-    setSelectedCategoryId,
-    searchContent,
-    setSearchContent,
-    isScrolled,
-    handleCategoryClick,
-    handleScroll,
-    filteredDiaries,
-    scrollToCategorySection,
-    diariesData   
-  } = useDiaryContext();
+  const [selectedCategoryId, setSelectedCategoryId] = useState(0);
   const [like, setLike] = useState(() => {
     const savedLikes = localStorage.getItem('diaryLikes');
     return savedLikes ? JSON.parse(savedLikes) : {};
   });
+
+  const { data: diariesData = [] } = useQuery({
+    queryKey: ['diaries'],
+    queryFn: async () => {
+      const response = await axios.get(`${BASE_URL}/diaries`, {
+        params: {
+          orderBy: 'created_at',  // 정렬 기준
+          limit: 100  
+        }
+      });
+      console.log(response.data);
+      return response.data;
+    }
+  });
+
+  const filteredDiaries = diariesData.filter(diary => {
+    if (selectedCategoryId === 0) return true;
+    return diary.category_id === selectedCategoryId;
+  });
+
+  const scrollToCategorySection = () => {
+    const categorySection = document.getElementById("category-section");
+    if (categorySection) {
+      const offset = categorySection.offsetTop + 50;
+      window.scrollTo({
+        top: offset,
+        behavior: "smooth",
+      });
+    }
+  };
 
   // 카테고리 데이터 추가
   const [categories] = useState([
@@ -93,7 +116,7 @@ const MainPage = () => {
           ))}
         </CategoryContainer>
         <DiaryContainer>
-          {diariesData.map((diary) => (
+          {filteredDiaries.map((diary) => (
             <DiaryCard key={diary.id}>
               <div
                 onClick={() => {
@@ -124,8 +147,7 @@ const MainPage = () => {
                   isLiked={like[diary.id]}
                   onLike={handleLike}
                 >
-                  <img src={Smile} alt="smile" />
-                  추천 {diary.likes}
+                  추천
                 </UpButton>
                 <WriteButton
                   onClick={() => {
