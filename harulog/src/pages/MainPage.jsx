@@ -93,7 +93,11 @@ const MainPage = () => {
           <LogoLink
             onClick={() => {
               window.scrollTo(0, 0);
-              navigate("/dailylog");
+              navigate("/dailylog", {
+                state: {
+                  selectedCategoryId: 1,
+                }
+              });
             }}
           >
             <p>로그 작성하러 가기</p>
