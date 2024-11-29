@@ -101,6 +101,9 @@ export default function TodayDrawing({ onDrawingUpdate }) {
     const [showText, setShowText] = useState(true);
     const [selectedTool, setSelectedTool] = useState('draw');
     const [eraserPosition, setEraserPosition] = useState(null);
+    const canvasHistory = useRef([]); 
+    const historyIndex = useRef(-1);
+
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -111,9 +114,20 @@ export default function TodayDrawing({ onDrawingUpdate }) {
         ctx.lineWidth = 3;
         ctx.strokeStyle = '#333';
         setUseCtx(ctx);
-    }, []);
+
+        const handleUndo = (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+                e.preventDefault();
+                undoCanvas();
+            }
+        };
+        window.addEventListener('keydown', handleUndo);
+        return () => window.removeEventListener('keydown', handleUndo);
+    }, [useCtx]);
 
     function draw(e) {
+        if (!useCtx) return;
+
         const positionX = e.nativeEvent.offsetX -15; //현재 x값 위치
         const positionY = e.nativeEvent.offsetY -10; //현재 Y값 위치
 
@@ -135,10 +149,12 @@ export default function TodayDrawing({ onDrawingUpdate }) {
     function handleMouseDown() {
         setPainting(true);
         setShowText(false); // 그림 그리기 시작하면 텍스트 숨기기
+
     }
 
     function handleMouseUp() {
         setPainting(false);
+        saveCanvasState();
         if (onDrawingUpdate) {
             const imageData = canvasRef.current.toDataURL("image/png");
             onDrawingUpdate(imageData);
@@ -168,9 +184,42 @@ export default function TodayDrawing({ onDrawingUpdate }) {
             useCtx.beginPath(); 
             useCtx.strokeStyle = '#333'; 
             setSelectedTool(null); 
+            canvasHistory.current = [];
             setShowText(true); 
         }
     }
+
+    function saveCanvasState() {
+        const canvas = canvasRef.current;
+        const newHistory = canvas.toDataURL();
+        
+        // history 배열에 이전 상태가 남아 있으면 자르기
+        if (historyIndex.current < canvasHistory.current.length - 1) {
+            canvasHistory.current = canvasHistory.current.slice(0, historyIndex.current + 1);
+        }
+    
+        // 새로운 상태만 저장
+        if (newHistory !== canvasHistory.current[canvasHistory.current.length - 1]) {
+            canvasHistory.current.push(newHistory);
+            console.log("11");
+            historyIndex.current++;
+        }
+    }
+
+    function undoCanvas() {
+        if (historyIndex.current > 0 && useCtx) {  // useCtx가 초기화되었는지 확인
+            historyIndex.current--;
+            const img = new Image();
+            img.src = canvasHistory.current[historyIndex.current];
+            img.onload = () => {
+                if (useCtx) {  // 다시 한 번 useCtx가 유효한지 확인
+                    useCtx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+                    useCtx.drawImage(img, 0, 0);
+                }
+            };
+        }
+    }
+
 
     return (
         <Container>
