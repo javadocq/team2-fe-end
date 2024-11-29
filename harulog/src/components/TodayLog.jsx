@@ -61,7 +61,7 @@ export default function TodayLog({ value, onChange }) {
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
                 placeholder="오늘의 한마디를 남겨보아요*"
-                maxLength="100"
+                maxLength="700"
             />
         </Container>
     );

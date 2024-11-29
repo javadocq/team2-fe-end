@@ -138,9 +138,9 @@ const MainPage = () => {
                   window.scrollTo(0, 0);
                 }}
               >
-                {diary.image_data && diary.image_data !== "null" && (
-                  <DiaryImage src={diary.image_data} alt="diary" />
-                )}
+                {diary.image_data ? 
+                  <DiaryImage src={diary.image_data} alt="diary" /> : null
+                }
                 <DiaryHeader>
                   <DiaryKeywordLabel>{`${categories.find(cat => cat.id === diary.category_id)?.categoryName || ''}`}</DiaryKeywordLabel>
                   <DiaryDate>{diary.created_at.slice(0, 10)}</DiaryDate>
