@@ -17,7 +17,8 @@ const UpButton = ({ diaryId, isLiked, onLike, children }) => {
         onLike(diaryId);
       }
       
-      await queryClient.invalidateQueries(["diaries"]);
+      const currentData = queryClient.getQueryData(["diaries"]);
+      queryClient.setQueryData(["diaries"], currentData);
       console.log(queryClient.getQueryData(["diaries"]));
     } catch (error) {
       if (error.response?.status === 404) {
@@ -33,7 +34,7 @@ const UpButton = ({ diaryId, isLiked, onLike, children }) => {
   return (
     <StyledButton onClick={handleLike} $isLiked={isLiked}>
       <img src={isLiked ? Check : Smile} alt="smile" />
-      {children} 
+      {children}
     </StyledButton>
   );
 };

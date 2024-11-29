@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 
 //import components
 import UpButton from "../components/UpButton";
-import { DiaryProvider } from "../components/DiaryContext";
+import { useDiaryContext } from "../components/DiaryContext";
 //import assets
 import WriteButtonImage from "../assets/icon_writebutton.svg";
 import Communication from "../assets/icon_communication.svg";
@@ -20,11 +20,12 @@ import Relax from "../assets/icon_relax.svg";
 import Achievement from "../assets/icon_achievements.svg";
 import Challenge from "../assets/icon_challenge.svg";
 import Emotion from "../assets/icon_emotions.svg";
-import Smile from "../assets/icon_smile.svg";
+
 
 const MainPage = () => {
   const navigate = useNavigate();
-  const [selectedCategoryId, setSelectedCategoryId] = useState(0);
+  // const [selectedCategoryId, setSelectedCategoryId] = useState(0);
+  const { searchContent, selectedCategoryId, setSelectedCategoryId } = useDiaryContext();
   const [like, setLike] = useState(() => {
     const savedLikes = localStorage.getItem('diaryLikes');
     return savedLikes ? JSON.parse(savedLikes) : {};
@@ -45,8 +46,12 @@ const MainPage = () => {
   });
 
   const filteredDiaries = diariesData.filter(diary => {
-    if (selectedCategoryId === 0) return true;
-    return diary.category_id === selectedCategoryId;
+    const matchesCategory = selectedCategoryId === 0 || diary.category_id === selectedCategoryId;
+    const matchesSearch = searchContent === "" || 
+      diary.content.toLowerCase().includes(searchContent.toLowerCase()) ||
+      diary.username.toLowerCase().includes(searchContent.toLowerCase());
+    
+    return matchesCategory && matchesSearch;
   });
 
   const scrollToCategorySection = () => {
@@ -93,7 +98,11 @@ const MainPage = () => {
           <LogoLink
             onClick={() => {
               window.scrollTo(0, 0);
-              navigate("/dailylog");
+              navigate("/dailylog", {
+                state: {
+                  selectedCategoryId: 1,
+                }
+              });
             }}
           >
             <p>로그 작성하러 가기</p>
@@ -128,7 +137,7 @@ const MainPage = () => {
                   <DiaryImage src={diary.image_data} alt="diary" />
                 )}
                 <DiaryHeader>
-                  <DiaryKeywordLabel>{diary.category_id}</DiaryKeywordLabel>
+                  <DiaryKeywordLabel>{`${categories.find(cat => cat.id === diary.category_id)?.categoryName || ''}`}</DiaryKeywordLabel>
                   <DiaryDate>{diary.created_at.slice(0, 10)}</DiaryDate>
                 </DiaryHeader>
                 <DiaryContent
