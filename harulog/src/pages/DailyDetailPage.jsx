@@ -36,7 +36,6 @@ const DailyDetailPage = () => {
     const [like, setLike] = useState(false);
     const [userName, setUserName] = useState("");
     const [showModal, setShowModal] = useState(false);
-    const [randomIndex] = useState(() => Math.floor(Math.random() * activityImages.length));
     const [showTextModal, setShowTextModal] = useState(false);
     const [apiText, setApiText] = useState('');
     const [diaryData, setDiaryData] = useState([]);
@@ -79,7 +78,7 @@ const DailyDetailPage = () => {
                 }); 
                 setApiText(response.data.adapted_content);
             } catch (error) {
-                alert("비밀번호가 맞지 않습니다.");
+                alert("연결이 실패하였습니다.");
             } finally {
                 setLoading(false); 
             }
@@ -91,12 +90,15 @@ const DailyDetailPage = () => {
         setShowModal(true)
         const fetchRecommend = async () => {
             try {
+                setLoading(true);
                 const response = await axios.post(`${BASE_URL}/diaries/recommendation`, {
                     id : id,
                 }); 
                 setRecommend(response.data);
             } catch (error) {
-                console.log("Fetch Recommend Error : ", error);
+                alert("연결이 실패하였습니다.");
+            } finally {
+                setLoading(false); 
             }
         };
         fetchRecommend();
@@ -128,9 +130,6 @@ const DailyDetailPage = () => {
                     {diaryData.image_data && (
                         <DrawingImage src={diaryData.image_data} alt="diary drawing" />
                     )}
-                    {/* <EditButton onClick={() => setShowDrawingModal(true)}>
-                        <img src={Pencil} alt="edit" width="32" height="32" />
-                    </EditButton> */}
                 </DrawingBox>
     
                 <TextBox>
@@ -166,7 +165,7 @@ const DailyDetailPage = () => {
                     <Modal>
                         <CloseButton onClick={() => setShowModal(false)}>×</CloseButton>
                         <ModalTitle>오늘 하루도 고생 많았어요</ModalTitle>
-                        <ModalImage src={activityImages[recommend.recommended_category_id-1]} alt="activity suggestion" />
+                        {loading ? "각색 중..." : <ModalImage src={activityImages[recommend.recommended_category_id-1]} alt="activity suggestion" />}
                         <ModalText>{recommend.recommended_content}</ModalText>
                     </Modal>
                 </ModalOverlay>
