@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 //import components
 import UpButton from "../components/UpButton";
 import { useDiaryContext } from "../components/DiaryContext";
+import SortButton from "../components/SortButton";
 //import assets
 import WriteButtonImage from "../assets/icon_writebutton.svg";
 import Communication from "../assets/icon_communication.svg";
@@ -24,7 +25,7 @@ import Emotion from "../assets/icon_emotions.svg";
 
 const MainPage = () => {
   const navigate = useNavigate();
-  // const [selectedCategoryId, setSelectedCategoryId] = useState(0);
+  const { sortType, setSortType } = useDiaryContext();
   const { searchContent, selectedCategoryId, setSelectedCategoryId } = useDiaryContext();
   const [like, setLike] = useState(() => {
     const savedLikes = localStorage.getItem('diaryLikes');
@@ -32,11 +33,11 @@ const MainPage = () => {
   });
 
   const { data: diariesData = [] } = useQuery({
-    queryKey: ['diaries'],
+    queryKey: ['diaries', sortType],
     queryFn: async () => {
       const response = await axios.get(`${BASE_URL}/diaries`, {
         params: {
-          orderBy: 'created_at',  // 정렬 기준
+          orderBy: sortType,  // 정렬 기준
           limit: 100  
         }
       });
@@ -124,12 +125,16 @@ const MainPage = () => {
             </Category>
           ))}
         </CategoryContainer>
+        <SortContainer>
+          <SortButton onSortChange={setSortType} />
+        </SortContainer>
         <DiaryContainer>
           {filteredDiaries.map((diary) => (
             <DiaryCard key={diary.id}>
               <div
                 onClick={() => {
                   navigate(`/diary/${diary.id}`);
+                  console.log(diary.views)
                   window.scrollTo(0, 0);
                 }}
               >
@@ -278,7 +283,13 @@ const Category = styled.button.attrs((props) => ({
     background-color: #f0f0f0;
   }
 `;
-// Styled Components
+
+const SortContainer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  margin: 20px 0;
+`;
+
 const DiaryContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr); // 3열 그리드

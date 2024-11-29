@@ -10,29 +10,36 @@ export const DiaryProvider = ({ children }) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isScrolled, setIsScrolled] = useState(false);
+  const [sortType, setSortType] = useState("created_at");
   const [selectedCategoryId, setSelectedCategoryId] = useState(0);
-  
+
   const { data: diariesData = [] } = useQuery({
-    queryKey: ['diaries'],
+    queryKey: ["diaries", sortType],
     queryFn: async () => {
-      const response = await axios.get(`${BASE_URL}/diaries`);
+      const response = await axios.get(`${BASE_URL}/diaries`, {
+        params: {
+          orderBy: sortType,
+        },
+      });
       return response.data;
-    }
+    },
   });
 
-  const filteredDiaries = diariesData.filter(diary => {
+  const filteredDiaries = diariesData.filter((diary) => {
     if (selectedCategoryId === 0) return true;
     return diary.category_id === selectedCategoryId;
   });
 
   const handleLogoClick = async () => {
     try {
-      await queryClient.invalidateQueries(['diaries']);
+      setSortType("created_at");
+      await queryClient.invalidateQueries(["diaries", "created_at"]);
       navigate("/");
       window.scrollTo(0, 0);
       setSelectedCategoryId(0);
       setSearchContent("");
-      console.log({selectedCategoryId});
+      console.log({ selectedCategoryId });
+      console.log({ sortType });
     } catch (error) {
       console.error("Failed to refresh data:", error);
     }
@@ -75,7 +82,9 @@ export const DiaryProvider = ({ children }) => {
     handleCategoryClick,
     handleScroll,
     filteredDiaries,
-    scrollToCategorySection
+    scrollToCategorySection,
+    sortType,
+    setSortType,
   };
 
   return (

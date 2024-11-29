@@ -42,7 +42,7 @@ const DailyDetailPage = () => {
     const [date, setDate] = useState("");
     const [loading, setLoading] = useState(false);
     const [recommend, setRecommend] = useState([]);
-
+    const [views, setViews] = useState(0);
     useEffect(() => {
         const fetchDiary = async () => {
             try {
@@ -50,6 +50,7 @@ const DailyDetailPage = () => {
                 setDiaryData(response.data);
                 setDate(response.data.created_at);
                 setUserName(response.data.username);
+                setViews(response.data.views);
                 console.log(response.data);
             } catch (error) {
                 console.error("Error fetching diary:", error);
@@ -142,7 +143,10 @@ const DailyDetailPage = () => {
                 </TextBox>
     
                 <ActionBar>
-                    <LikeCount>추천 {diaryData.likes}</LikeCount>
+                    <LikeAndViews>
+                        <LikeCount>추천 {diaryData.likes}</LikeCount>
+                        <ViewsCount>조회 {views}</ViewsCount>
+                    </LikeAndViews>
                     <ButtonContainer>
                         <StyledUpButtonWrapper>
                             <UpButton 
@@ -331,10 +335,27 @@ const ActionBar = styled.div`
     min-height: 704px;
 `;
 
+const LikeAndViews = styled.div`
+    display: flex;
+    gap: 16px;
+    justify-content: space-between;
+    margin-bottom: 30px;
+`;
+
 const LikeCount = styled.div`
     font-size: 14px;
     color: #666;
-    margin-bottom: 16px;
+    margin-left: 300px;
+    font-size: 20px;
+    color: #65558f;
+`;
+
+const ViewsCount = styled.div`
+    font-size: 14px;
+    color: #666;
+    margin-right: 300px;
+    font-size: 20px;
+    color: #65558f;
 `;
 
 const ButtonContainer = styled.div`
