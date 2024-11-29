@@ -103,9 +103,12 @@ const Input = styled.input`
 `;
 
 const Eye = styled.div`
-    position : absolute;
-    right : 0;
-    top : 55%;
+    position: absolute;
+    right: 14px;  /* 패딩 안쪽 위치 고정 */
+    top: 65px;  /* 입력 필드의 정중앙에 위치 */
+    transform: translateY(-50%); /* 중앙 정렬 */
+    z-index: 1; /* 비밀번호 안내문이 생겨도 아이콘이 위로 올라오게 */
+    cursor: pointer;
 `;
 
 const Button = styled.button`
@@ -144,6 +147,7 @@ export default function DailyLog() {
     const location = useLocation();
     const { selectedCategoryId } = location.state || {};
     const keyword = searchParams.get("keyword");
+    const [isPasswordValid, setIsPasswordValid] = useState(true);
     const [name, setName] = useState("");
     const [password, setPassword] = useState("");
     const [category, setCategory] = useState([
@@ -189,12 +193,24 @@ export default function DailyLog() {
 
     function handleShowPassword() {
         setShowPassword(!showPassword);
+        
+    }
+    function handlePasswordChange(e) {
+        const value = e.target.value;
+        setPassword(value);
+        setIsPasswordValid(value.length >= 4);
     }
 
 
 
     function handleLog(e) {
         e.preventDefault();
+
+        if (password.length < 4 || password.length > 20) {
+            alert("비밀번호는 4자리 이상 20자리 이하로 입력해야 합니다.");
+            return;
+        }
+
         const createDiary = async() => {
             try {
                 const response = await axios.post(`${BASE_URL}/diaries`, {
@@ -232,15 +248,21 @@ export default function DailyLog() {
                 />
                 <Password>
                     <Text>비밀번호*</Text>
-                    <Input 
+                    <Input
                         type={showPassword ? "text" : "password"}
-                        placeholder="로그의 비밀번호를 설정해주세요(영문, 숫자 무관 4자리 이상)"
+                        placeholder="로그의 비밀번호를 설정해주세요 (영문, 숫자 무관 4자리 이상)"
                         value={password}
                         minLength={4}
                         maxLength={20}
-                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        onChange={(e) => handlePasswordChange(e)}
+                        style={{
+                            borderColor: isPasswordValid ? "#EEE" : "red",
+                            outlineColor: isPasswordValid ? "" : "red",
+                        }}
                     />
                     <Eye onClick={handleShowPassword}>{showPassword ? <img src={ShowEye} /> : <img src={hideEye} />}</Eye>
+                    {!isPasswordValid && <p style={{ color: "red" }}>비밀번호는 4자리 이상이어야 합니다.</p>}
                 </Password>
                 <Text>카테고리*</Text>
                 <Category category={category} select={handleCategorySelect} BeforeSelected={selectedCategoryId}/>
