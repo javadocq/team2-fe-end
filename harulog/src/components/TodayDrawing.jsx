@@ -152,16 +152,24 @@ export default function TodayDrawing({ onDrawingUpdate }) {
 
     }
 
+    function isCanvasBlank(canvas) {
+        const ctx = canvas.getContext('2d');
+        const pixelBuffer = new Uint32Array(ctx.getImageData(0, 0, canvas.width, canvas.height).data.buffer);
+        return !pixelBuffer.some(color => color !== 0); // 색상이 전부 0이면 빈 캔버스
+    }
+
     function handleMouseUp() {
         setPainting(false);
         saveCanvasState();
-        if (onDrawingUpdate) {
-            const imageData = canvasRef.current.toDataURL("image/png");
-            onDrawingUpdate(imageData);
+        if (onDrawingUpdate && canvasRef.current) {
+            if (!isCanvasBlank(canvasRef.current)) { // 빈 캔버스가 아닌 경우에만 업데이트
+                const imageData = canvasRef.current.toDataURL("image/png");
+                onDrawingUpdate(imageData);
+            }
         }
         setEraserPosition(null);
     }
-
+    
     function handleDraw() {
         setSelectedTool('draw');
         useCtx.beginPath();

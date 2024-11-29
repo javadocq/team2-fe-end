@@ -27,31 +27,13 @@ const NavBar = () => {
     scrollToCategorySection,
     setSelectedCategoryId,
     selectedCategoryId,
-    handleScroll  // context에서 가져오기
+    handleScroll,
+    handleLogoClick
   } = useDiaryContext();
   // const [selectedCategoryId, setSelectedCategoryId] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
   const isMainPage = location.pathname === "/";
-
-  const queryClient = useQueryClient(); // 추가
-
-  const handleLogoClick = async () => {
-    try {
-      // 캐시 무효화 및 데이터 새로고침
-      await queryClient.invalidateQueries(['diaries']);
-      // 메인 페이지로 이동
-      navigate("/");
-      // 스크롤 맨 위로
-      window.scrollTo(0, 0);
-      // 카테고리 초기화
-      setSelectedCategoryId(0);
-      // 검색어 초기화
-      setSearchContent("");
-    } catch (error) {
-      console.error("Failed to refresh data:", error);
-    }
-  };
 
   // 스크롤 상태에 따른 Nav 구성
   useEffect(() => {
@@ -137,7 +119,7 @@ const NavBar = () => {
         </>
       ) : (
         <Nav>
-          <Logo onClick={() => navigate("/")}>
+          <Logo onClick={handleLogoClick}>
             <LogoImg src={LogoImage} alt="logo" />
             <Title style={{ marginLeft: "8px" }}>하루로그</Title>
           </Logo>

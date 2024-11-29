@@ -35,14 +35,13 @@ const DailyDetailPage = () => {
     const [like, setLike] = useState(false);
     const [userName, setUserName] = useState("");
     const [showModal, setShowModal] = useState(false);
-    const [randomIndex] = useState(() => Math.floor(Math.random() * activityImages.length));
     const [showTextModal, setShowTextModal] = useState(false);
     const [apiText, setApiText] = useState('');
     const [diaryData, setDiaryData] = useState([]);
     const [date, setDate] = useState("");
     const [loading, setLoading] = useState(false);
     const [recommend, setRecommend] = useState([]);
-
+    const [views, setViews] = useState(0);
     useEffect(() => {
         const fetchDiary = async () => {
             try {
@@ -50,6 +49,7 @@ const DailyDetailPage = () => {
                 setDiaryData(response.data);
                 setDate(response.data.created_at);
                 setUserName(response.data.username);
+                setViews(response.data.views);
                 console.log(response.data);
             } catch (error) {
                 console.error("Error fetching diary:", error);
@@ -78,7 +78,7 @@ const DailyDetailPage = () => {
                 }); 
                 setApiText(response.data.adapted_content);
             } catch (error) {
-                alert("비밀번호가 맞지 않습니다.");
+                alert("연결이 실패하였습니다.");
             } finally {
                 setLoading(false); 
             }
@@ -90,12 +90,15 @@ const DailyDetailPage = () => {
         setShowModal(true)
         const fetchRecommend = async () => {
             try {
+                setLoading(true);
                 const response = await axios.post(`${BASE_URL}/diaries/recommendation`, {
                     id : id,
                 }); 
                 setRecommend(response.data);
             } catch (error) {
-                console.log("Fetch Recommend Error : ", error);
+                alert("연결이 실패하였습니다.");
+            } finally {
+                setLoading(false); 
             }
         };
         fetchRecommend();
@@ -127,9 +130,6 @@ const DailyDetailPage = () => {
                     {diaryData.image_data && (
                         <DrawingImage src={diaryData.image_data} alt="diary drawing" />
                     )}
-                    {/* <EditButton onClick={() => setShowDrawingModal(true)}>
-                        <img src={Pencil} alt="edit" width="32" height="32" />
-                    </EditButton> */}
                 </DrawingBox>
     
                 <TextBox>
@@ -142,7 +142,10 @@ const DailyDetailPage = () => {
                 </TextBox>
     
                 <ActionBar>
-                    <LikeCount>추천 {diaryData.likes}</LikeCount>
+                    <LikeAndViews>
+                        <LikeCount>추천 {diaryData.likes}</LikeCount>
+                        <ViewsCount>조회 {views}</ViewsCount>
+                    </LikeAndViews>
                     <ButtonContainer>
                         <StyledUpButtonWrapper>
                             <UpButton 
@@ -165,14 +168,8 @@ const DailyDetailPage = () => {
                     <Modal onClick={(e) => e.stopPropagation()}>
                         <CloseButton onClick={() => setShowModal(false)}>×</CloseButton>
                         <ModalTitle>오늘 하루도 고생 많았어요</ModalTitle>
-                        {recommend.recommended_category_id ? (
-                            <>
-                                <ModalImage src={activityImages[recommend.recommended_category_id-1]} alt="activity suggestion" />
-                                <ModalText>{recommend.recommended_content}</ModalText>
-                            </>
-                        ) : (
-                            <LoadingSpinner />
-                        )}
+                        {loading ? <LoadingSpinner /> : <ModalImage src={activityImages[recommend.recommended_category_id-1]} alt="activity suggestion" />}
+                        <ModalText>{recommend.recommended_content}</ModalText>
                     </Modal>
                 </ModalOverlay>
             )}
@@ -336,11 +333,27 @@ const ActionBar = styled.div`
     height: 80px;
 `;
 
+const LikeAndViews = styled.div`
+    display: flex;
+    gap: 16px;
+    justify-content: space-between;
+    margin-bottom: 30px;
+`;
 
 const LikeCount = styled.div`
     font-size: 14px;
     color: #666;
-    margin-bottom: 16px;
+    margin-left: 300px;
+    font-size: 20px;
+    color: #65558f;
+`;
+
+const ViewsCount = styled.div`
+    font-size: 14px;
+    color: #666;
+    margin-right: 300px;
+    font-size: 20px;
+    color: #65558f;
 `;
 
 const ButtonContainer = styled.div`
