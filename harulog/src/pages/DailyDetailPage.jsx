@@ -2,10 +2,9 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-import mockData from "../mocks/mockData.json";
 import UpButton from "../components/UpButton";
+import LoadingSpinner from "../components/LoadingSpinner";
 //import assets
-import Drawing from "../assets/icon_drawing.svg";
 import Communication from "../assets/icon_communication.svg";
 import Thanks from "../assets/icon_thanks.svg";
 import Relax from "../assets/icon_relax.svg";
@@ -165,23 +164,23 @@ const DailyDetailPage = () => {
             </Content>
 
             {showModal && (
-                <ModalOverlay>
-                    <Modal>
+                <ModalOverlay onClick={() => setShowModal(false)}>
+                    <Modal onClick={(e) => e.stopPropagation()}>
                         <CloseButton onClick={() => setShowModal(false)}>×</CloseButton>
                         <ModalTitle>오늘 하루도 고생 많았어요</ModalTitle>
-                        {loading ? "각색 중..." : <ModalImage src={activityImages[recommend.recommended_category_id-1]} alt="activity suggestion" />}
+                        {loading ? <LoadingSpinner /> : <ModalImage src={activityImages[recommend.recommended_category_id-1]} alt="activity suggestion" />}
                         <ModalText>{recommend.recommended_content}</ModalText>
                     </Modal>
                 </ModalOverlay>
             )}
 
             {showTextModal && (
-                <ModalOverlay>
-                    <Modal>
+                <ModalOverlay onClick={() => setShowTextModal(false)}>
+                    <Modal onClick={(e) => e.stopPropagation()}>
                         <CloseButton onClick={() => setShowTextModal(false)}>×</CloseButton>
                         <ModalTitle>오늘 하루도 고생 많았어요</ModalTitle>
                         <ModalTextBox>
-                            {loading ? "각색 중..." : apiText}
+                            {loading ? <LoadingSpinner /> : apiText}
                         </ModalTextBox>
                         <ModalText>AI가 재해석한 하루님의 하루 어떠신가요?</ModalText>
                     </Modal>
@@ -198,15 +197,14 @@ const Container = styled.div`
     display: flex;
     justify-content: center;
     background: #FEFFFB;
-    min-height: 100vh;
     padding: 24px;
+    height: 100%;
 `;
 
 const Content = styled.div`
     width: 880px;
     flex-direction: column;
-    gap: 24px;
-    margin-top: 24px;
+    margin-top: 8px; // 더 줄임
 `;
 
 const DrawingBox = styled.div`
@@ -322,17 +320,17 @@ const TextContent = styled.div`
     font-size: 16px;
     line-height: 1.6;
     color: #333;
-    min-height: 200px;
+    height: 180px;
     white-space: pre-wrap;
-    padding: 24px;
+    padding: 20px;
 `;
 
 const ActionBar = styled.div`
     width: 100%;
     text-align: center;
-    padding-top: 24px;
+    padding-top: 16px;
     border-top: 1px solid #EEE;
-    min-height: 704px;
+    height: 80px;
 `;
 
 const LikeAndViews = styled.div`
@@ -543,6 +541,7 @@ const ModalTextBox = styled.div`
     color: #333;
     white-space: pre-wrap;
     overflow-y: auto;
+    position: relative;
 `;
 
 export default DailyDetailPage;
