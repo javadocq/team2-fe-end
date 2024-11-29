@@ -38,8 +38,6 @@ export const DiaryProvider = ({ children }) => {
       window.scrollTo(0, 0);
       setSelectedCategoryId(0);
       setSearchContent("");
-      console.log({ selectedCategoryId });
-      console.log({ sortType });
     } catch (error) {
       console.error("Failed to refresh data:", error);
     }

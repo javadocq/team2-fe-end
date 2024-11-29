@@ -37,11 +37,10 @@ const MainPage = () => {
     queryFn: async () => {
       const response = await axios.get(`${BASE_URL}/diaries`, {
         params: {
-          orderBy: sortType,  // 정렬 기준
+          orderBy: sortType,
           limit: 100  
         }
       });
-      console.log(response.data);
       return response.data;
     }
   });
@@ -66,7 +65,6 @@ const MainPage = () => {
     }
   };
 
-  // 카테고리 데이터 추가
   const [categories] = useState([
     { id: 1, categoryName: "소통", image: Communication },
     { id: 2, categoryName: "감사", image: Thanks },
@@ -134,7 +132,6 @@ const MainPage = () => {
               <div
                 onClick={() => {
                   navigate(`/diary/${diary.id}`);
-                  console.log(diary.views)
                   window.scrollTo(0, 0);
                 }}
               >
@@ -300,7 +297,7 @@ const DiaryContainer = styled.div`
 `;
 
 const DiaryCard = styled.div`
-  width: 100%;
+  width: 280px;
   height: 220px;
   position: relative;
   background: white;
@@ -313,8 +310,9 @@ const DiaryCard = styled.div`
 
 const DiaryImage = styled.img`
   width: 240px;
-  height: 60px;
-  padding: 10px 20px;
+  height: 90px;
+  padding: 0px 20px;
+  margin: 10px 10px 0px 10px;
   object-fit: cover;
 `;
 
@@ -330,6 +328,7 @@ const DiaryHeader = styled.div`
 `;
 
 const DiaryKeywordLabel = styled.span`
+  color: #666;
   background-color: #fbffee;
   width: 49px;
   height: 32px;
@@ -338,20 +337,26 @@ const DiaryKeywordLabel = styled.span`
   align-items: center;
   border-radius: 4px;
   font-size: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 
+             0 4px 8px rgba(0, 0, 0, 0.05);
 `;
 
 const DiaryDate = styled.span`
   color: #666;
+  background-color: #fbffee;
   padding: 4px 8px;
   border-radius: 4px;
   font-size: 12px;
   display: flex;
   justify-content: center;
   align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 
+             0 4px 8px rgba(0, 0, 0, 0.05);
 `;
 
 const DiaryContent = styled.div`
   flex: 1;
+  width: 277px;
   display: flex;
   align-items: ${(props) => (props.$hasImage ? "flex-start" : "center")};
   padding-top: ${(props) => (props.$hasImage ? "0px" : "50px")};
@@ -359,7 +364,7 @@ const DiaryContent = styled.div`
   p {
     font-family: "UhBee Seulvely", sans-serif;
     font-size: 14px;
-    margin: 10px;
+    margin: 10px 10px 0px 10px;
     display: -webkit-box;
     -webkit-box-orient: vertical;
     overflow: hidden;
