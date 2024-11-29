@@ -1,11 +1,10 @@
 export const checkJongseong = (word) => {
-  // null, undefined 체크 추가
   if (!word) return false;
   const lastChar = word[word.length - 1];
   const code = lastChar.charCodeAt(0);
 
   if (code < 0xAC00 || code > 0xD7A3) {
-      return false; // 한글이 아닌 경우 처리
+      return false; 
   }
 
   const jongseong = (code - 0xAC00) % 28;
