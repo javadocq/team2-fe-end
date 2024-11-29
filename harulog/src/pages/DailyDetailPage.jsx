@@ -18,16 +18,7 @@ import Music from "../assets/icon_music.svg";
 import Food from "../assets/icon_food.svg";
 import Video from "../assets/icon_video.svg";
 import { BASE_URL } from "../components/BASE_URL";
-import ShowEye from "../assets/icon_showPW.svg";
-import hideEye from "../assets/icon_hidePW.svg";
-
 const activityImages = [Beverage, Music, Food, Video];
-const messages = [
-    "오늘은 음료수가 생각나네요!",
-    "음악과 함께하는 하루 어떠세요?",
-    "맛있는 음식으로 기분 전환!",
-    "영상 한 편 보면서 쉬어가요!"
-];
 
 const categoryImages = {
     "소통": Communication,
@@ -43,18 +34,14 @@ const DailyDetailPage = () => {
     const navigate = useNavigate();
     const { id } = useParams();
     const [like, setLike] = useState(false);
+    const [userName, setUserName] = useState("");
     const [showModal, setShowModal] = useState(false);
-    const [randomIndex] = useState(() => Math.floor(Math.random() * activityImages.length));
     const [showTextModal, setShowTextModal] = useState(false);
     const [apiText, setApiText] = useState('');
-    // const [showDrawingModal, setShowDrawingModal] = useState(false);
-    // const [drawingApiText, setDrawingApiText] = useState('');
     const [diaryData, setDiaryData] = useState([]);
-    const [showPassword, setShowPassword] = useState(false);
     const [date, setDate] = useState("");
-    const [showApiModal, setShowApiModal] = useState(false);
-    const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
+    const [recommend, setRecommend] = useState([]);
 
     useEffect(() => {
         const fetchDiary = async () => {
@@ -62,6 +49,7 @@ const DailyDetailPage = () => {
                 const response = await axios.get(`${BASE_URL}/diaries/${id}`); 
                 setDiaryData(response.data);
                 setDate(response.data.created_at);
+                setUserName(response.data.username);
                 console.log(response.data);
             } catch (error) {
                 console.error("Error fetching diary:", error);
@@ -81,17 +69,16 @@ const DailyDetailPage = () => {
     };
 
     const handleWriteAPI = () => {
+        setShowTextModal(true);
         const fetchWriteAPI = async () => {
             try {
                 setLoading(true);
                 const response = await axios.post(`${BASE_URL}/diaries/adaptation`, {
                     id : id,
-                    password : password,
                 }); 
-                setShowApiModal(true);
-                setApiText(response.data.adapted_content ? response.data.adapted_content : "각색은 한 번만 제공됩니다.");
+                setApiText(response.data.adapted_content);
             } catch (error) {
-                alert("비밀번호가 맞지 않습니다.");
+                alert("연결이 실패하였습니다.");
             } finally {
                 setLoading(false); 
             }
@@ -99,14 +86,24 @@ const DailyDetailPage = () => {
         fetchWriteAPI();
     }
 
-    function handleShowPassword() {
-        setShowPassword(!showPassword);
+    function handleRecommend() {
+        setShowModal(true)
+        const fetchRecommend = async () => {
+            try {
+                setLoading(true);
+                const response = await axios.post(`${BASE_URL}/diaries/recommendation`, {
+                    id : id,
+                }); 
+                setRecommend(response.data);
+            } catch (error) {
+                alert("연결이 실패하였습니다.");
+            } finally {
+                setLoading(false); 
+            }
+        };
+        fetchRecommend();
     }
-
-    function handleClose() {
-        setShowModal(false);
-        setShowApiModal(false);
-    }
+    
 
     return (
         <Container>
@@ -124,7 +121,7 @@ const DailyDetailPage = () => {
                         </CategoryLabel>
                     </CategoryAndDate>
                     <AuthorSection>
-                        <Author>하루님의 로그</Author>
+                        <Author>{userName}님의 로그</Author>
                         <Date>{date.slice(0,10)}</Date>
                     </AuthorSection>
                 </Header>
@@ -133,16 +130,13 @@ const DailyDetailPage = () => {
                     {diaryData.image_data && (
                         <DrawingImage src={diaryData.image_data} alt="diary drawing" />
                     )}
-                    {/* <EditButton onClick={() => setShowDrawingModal(true)}>
-                        <img src={Pencil} alt="edit" width="32" height="32" />
-                    </EditButton> */}
                 </DrawingBox>
     
                 <TextBox>
                     <TextContent>
                         {diaryData.content}
                     </TextContent>
-                    <EditButton onClick={() => setShowTextModal(true)}>
+                    <EditButton onClick={() => handleWriteAPI()}>
                         <img src={Pencil} alt="edit" width="32" height="32" />
                     </EditButton>
                 </TextBox>
@@ -159,7 +153,7 @@ const DailyDetailPage = () => {
                                 추천
                             </UpButton>
                         </StyledUpButtonWrapper>
-                        <WriteButton onClick={() => setShowModal(true)}>
+                        <WriteButton onClick={() => handleRecommend()}>
                             내일 뭐하지? ✨
                         </WriteButton>
                     </ButtonContainer>
@@ -171,30 +165,16 @@ const DailyDetailPage = () => {
                     <Modal>
                         <CloseButton onClick={() => setShowModal(false)}>×</CloseButton>
                         <ModalTitle>오늘 하루도 고생 많았어요</ModalTitle>
-                        <ModalImage src={activityImages[randomIndex]} alt="activity suggestion" />
-                        <ModalText>내일은 "{messages[randomIndex]}"</ModalText>
+                        {loading ? "각색 중..." : <ModalImage src={activityImages[recommend.recommended_category_id-1]} alt="activity suggestion" />}
+                        <ModalText>{recommend.recommended_content}</ModalText>
                     </Modal>
                 </ModalOverlay>
             )}
 
-            {/* {showDrawingModal && (
-                <ModalOverlay>
-                    <Modal>
-                        <CloseButton onClick={() => setShowDrawingModal(false)}>×</CloseButton>
-                        <ModalTitle>오늘 하루도 고생 많았어요</ModalTitle>
-                        <DrawingApiBox>
-                            {drawingApiText || "AI 그림 들어가는 곳입니다"}
-                        </DrawingApiBox>
-                        <ModalText>AI가 재해석한 하루님의 그림 어떠신가요?</ModalText>
-                    </Modal>
-                </ModalOverlay>
-            )} */}
-
             {showTextModal && (
-                showApiModal ? (
                 <ModalOverlay>
                     <Modal>
-                        <CloseButton onClick={() => handleClose()}>×</CloseButton>
+                        <CloseButton onClick={() => setShowTextModal(false)}>×</CloseButton>
                         <ModalTitle>오늘 하루도 고생 많았어요</ModalTitle>
                         <ModalTextBox>
                             {loading ? "각색 중..." : apiText}
@@ -202,25 +182,6 @@ const DailyDetailPage = () => {
                         <ModalText>AI가 재해석한 하루님의 하루 어떠신가요?</ModalText>
                     </Modal>
                 </ModalOverlay>
-                ) : (
-                <ModalOverlay>
-                    <Modal>
-                        <CloseButton onClick={() => setShowTextModal(false)}>×</CloseButton>
-                        <ModalTitle>AI와 함께하는 로그는 작성자만 볼 수 있어요</ModalTitle>
-                        <ModalSemiTitle>하루로그는 일상의 평범함을 더욱 즐겁게 만들기 위해 여러분과 함께합니다</ModalSemiTitle>
-                        <Text>비밀번호</Text>
-                        <Input 
-                            type={showPassword ? "text" : "password"}
-                            onChange={(e) => setPassword(e.target.value)}
-                        />
-                        <Eye onClick={handleShowPassword}>{showPassword ? <img src={ShowEye} /> : <img src={hideEye} />}</Eye>
-                        <ButtonBox>
-                            <LeftButton onClick={() => setShowTextModal(false)}>작성자가 아니에요</LeftButton>
-                            <RightButton onClick={() => handleWriteAPI()}>AI와 함께한 로그 확인하기</RightButton>
-                        </ButtonBox>
-                    </Modal>
-                </ModalOverlay>
-                )
             )}
         </Container>
     );
