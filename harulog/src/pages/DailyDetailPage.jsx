@@ -50,7 +50,6 @@ const DailyDetailPage = () => {
                 setDate(response.data.created_at);
                 setUserName(response.data.username);
                 setViews(response.data.views);
-                console.log(response.data);
             } catch (error) {
                 console.error("Error fetching diary:", error);
             }
@@ -60,7 +59,6 @@ const DailyDetailPage = () => {
 
     useEffect(() => {
         if (apiText) {
-            console.log("API Text Updated:", apiText);
         }
     }, [apiText]);
 

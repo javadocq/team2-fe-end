@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 
 //import react-router-dom
-import { useNavigate, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 //import assets
 import LogoImage from "../assets/icon_logo.svg";
@@ -15,9 +15,7 @@ import Achievement from "../assets/icon_achievements.svg";
 import Challenge from "../assets/icon_challenge.svg";
 import Emotion from "../assets/icon_emotions.svg";
 import { useDiaryContext } from "./DiaryContext";
-import { useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
-import { BASE_URL } from "./BASE_URL";
+
 
 const NavBar = () => {
   const { 
@@ -30,8 +28,8 @@ const NavBar = () => {
     handleScroll,
     handleLogoClick
   } = useDiaryContext();
-  // const [selectedCategoryId, setSelectedCategoryId] = useState(0);
-  const navigate = useNavigate();
+
+
   const location = useLocation();
   const isMainPage = location.pathname === "/";
 
