@@ -206,7 +206,7 @@ const DailyDetailPage = () => {
                         <CloseButton onClick={() => setShowModal(false)}>×</CloseButton>
                         <ModalTitle>오늘 하루도 고생 많았어요</ModalTitle>
                         <ModalContentBox>
-                            {!loading ? (
+                            {loading ? (
                                 <LoadingSpinner />
                             ) : (
                                 <>

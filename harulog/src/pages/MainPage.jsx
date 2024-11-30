@@ -198,6 +198,7 @@ const Container = styled.div`
   justify-content: center;
   background-color: #fefffb;
   font-family: Pretendard;
+  padding-bottom : 20px;
 `;
 
 const LogoLink = styled.div`

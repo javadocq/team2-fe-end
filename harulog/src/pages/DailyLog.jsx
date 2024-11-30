@@ -47,7 +47,7 @@ const InfoBox = styled.div`
 
 const WriteBox = styled.form`
     width : 880px;
-    height : 887px;
+    height : 1150px;
 `;
 
 const WriteBoxText = styled.h2`

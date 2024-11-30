@@ -24,7 +24,7 @@ const Button = styled.button`
   right: 20px;
   border: none;
   border-radius: 50%;
-  background-color: #FEFFFB;
+  background-color: #65558F;
 `;
 
 const StyledImg = styled.img`

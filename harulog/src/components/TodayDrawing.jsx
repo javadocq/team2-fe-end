@@ -191,8 +191,9 @@ export default function TodayDrawing({ onDrawingUpdate }) {
 
             useCtx.beginPath(); 
             useCtx.strokeStyle = '#333'; 
-            setSelectedTool(null); 
+            setSelectedTool('draw'); 
             canvasHistory.current = [];
+            useCtx.lineWidth = 3;
             setShowText(true); 
         }
     }
