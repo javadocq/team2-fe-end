@@ -1,5 +1,4 @@
 import UpArrow from "../assets/icon_Arrow.svg";
-import HoverArrow from "../assets/icon_HoverArrow.svg"; // 추가
 import styled from "styled-components";
 
 const UpScrollButton = () => {
@@ -9,7 +8,7 @@ const UpScrollButton = () => {
 
   return (
     <Button onClick={handleScrollToTop}>
-      <StyledImg src={UpArrow} hoverSrc={HoverArrow} alt="up" />
+      <StyledImg src={UpArrow} alt="up" />
     </Button>
   );
 }
@@ -25,6 +24,7 @@ const Button = styled.button`
   border: none;
   border-radius: 50%;
   background-color: #65558F;
+  cursor:pointer;
 `;
 
 const StyledImg = styled.img`

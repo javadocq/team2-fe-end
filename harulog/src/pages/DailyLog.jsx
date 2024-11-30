@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 //import components
 import Category from "../components/Category";
@@ -142,11 +142,9 @@ const ButtonText = styled.h2`
 
 export default function DailyLog() {
     const queryClient = useQueryClient();  // 추가
-    const [searchParams] = useSearchParams();
     const navigate = useNavigate();
     const location = useLocation();
     const { selectedCategoryId } = location.state || {};
-    const keyword = searchParams.get("keyword");
     const [isPasswordValid, setIsPasswordValid] = useState(true);
     const [name, setName] = useState("");
     const [password, setPassword] = useState("");
