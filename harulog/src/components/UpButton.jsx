@@ -4,7 +4,6 @@ import axios from "axios";
 import { useQueryClient } from '@tanstack/react-query';
 import { BASE_URL } from "./BASE_URL";
 import Smile from "../assets/icon_smile.svg";
-import Check from "../assets/icon_check.svg";
 
 const UpButton = ({ diaryId, onLike, children }) => {
   const queryClient = useQueryClient();
