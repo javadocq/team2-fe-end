@@ -4,19 +4,14 @@ import axios from "axios";
 import { useQueryClient } from '@tanstack/react-query';
 import { BASE_URL } from "./BASE_URL";
 import Smile from "../assets/icon_smile.svg";
-import Check from "../assets/icon_check.svg";
 
-const UpButton = ({ diaryId, isLiked, onLike, children }) => {
+const UpButton = ({ diaryId, onLike, children }) => {
   const queryClient = useQueryClient();
 
   const handleLike = async () => {
     try {
       await axios.patch(`${BASE_URL}/diaries/${diaryId}/likes`);
-      
-      if (!isLiked) {
-        onLike(diaryId);
-      }
-      
+      onLike(diaryId);
       const currentData = queryClient.getQueryData(["diaries"]);
       queryClient.setQueryData(["diaries"], currentData);
     } catch (error) {
@@ -31,8 +26,8 @@ const UpButton = ({ diaryId, isLiked, onLike, children }) => {
   };
 
   return (
-    <StyledButton onClick={handleLike} $isLiked={isLiked}>
-      <img src={isLiked ? Check : Smile} alt="smile" />
+    <StyledButton onClick={handleLike}>
+      <img src={Smile} alt="smile" />
       {children}
     </StyledButton>
   );
@@ -51,14 +46,31 @@ const StyledButton = styled.button`
   padding: 8px 5px;
   border: 1px solid #ddd;
   border-radius: 4px;
-  background: ${(props) => (props.$isLiked ? "#eaddff" : "white")};
+  background: white;
   cursor: pointer;
   font-size: 12px;
   font-family: Pretendard;
-  color: ${(props) => (props.$isLiked ? "#ffffff" : "inherit")};
+  transition: background 0.2s ease;
 
   &:hover {
     background: #eaddff;
+    color: #ffffff;
+  }
+
+  &:active {
+    animation: clickEffect 0.2s;
+  }
+
+  @keyframes clickEffect {
+    0% {
+      background: #eaddff;
+    }
+    50% {
+      background: white;
+    }
+    100% {
+      background: #eaddff;
+    }
   }
 
   img {

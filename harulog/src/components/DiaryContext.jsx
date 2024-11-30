@@ -19,6 +19,7 @@ export const DiaryProvider = ({ children }) => {
       const response = await axios.get(`${BASE_URL}/diaries`, {
         params: {
           orderBy: sortType,
+          limit: 100
         },
       });
       return response.data;

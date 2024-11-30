@@ -26,7 +26,7 @@ import Emotion from "../assets/icon_emotions.svg";
 const MainPage = () => {
   const navigate = useNavigate();
   const { sortType, setSortType } = useDiaryContext();
-  const { searchContent, selectedCategoryId, setSelectedCategoryId } = useDiaryContext();
+  const { searchContent, selectedCategoryId, setSelectedCategoryId, scrollToCategorySection } = useDiaryContext();
   const [like, setLike] = useState(() => {
     const savedLikes = localStorage.getItem('diaryLikes');
     return savedLikes ? JSON.parse(savedLikes) : {};
@@ -54,16 +54,16 @@ const MainPage = () => {
     return matchesCategory && matchesSearch;
   });
 
-  const scrollToCategorySection = () => {
-    const categorySection = document.getElementById("category-section");
-    if (categorySection) {
-      const offset = categorySection.offsetTop + 50;
-      window.scrollTo({
-        top: offset,
-        behavior: "smooth",
-      });
-    }
-  };
+  // const scrollToCategorySection = () => {
+  //   const categorySection = document.getElementById("category-section");
+  //   if (categorySection) {
+  //     const offset = categorySection.offsetTop + 50;
+  //     window.scrollTo({
+  //       top: offset,
+  //       behavior: "smooth",
+  //     });
+  //   }
+  // };
 
   const [categories] = useState([
     { id: 1, categoryName: "소통", image: Communication },
@@ -113,8 +113,8 @@ const MainPage = () => {
             <Category
               key={category.id}
               onClick={() => {
-                setSelectedCategoryId(category.id);
                 scrollToCategorySection();
+                setSelectedCategoryId(category.id);
               }}
               $isSelected={selectedCategoryId === category.id}
             >
@@ -155,7 +155,6 @@ const MainPage = () => {
               <DiaryActions>
                 <UpButton
                   diaryId={diary.id}
-                  isLiked={like[diary.id]}
                   onLike={handleLike}
                 >
                   추천
@@ -259,7 +258,7 @@ const CategoryImage = styled.img`
 `;
 
 const Category = styled.button.attrs((props) => ({
-  isSelected: undefined,
+  isSelected: props.$isSelected,
 }))`
   display: flex;
   flex-direction: column;
@@ -269,7 +268,7 @@ const Category = styled.button.attrs((props) => ({
   gap: 12px;
   border: none;
   background-color: ${(props) =>
-    props.isSelected ? "#f0f0f0" : "transparent"};
+    props.isSelected ? "#f5f5f5" : "transparent"};
   cursor: pointer;
   transition: all 0.2s;
   padding: 20px 40px;
@@ -371,7 +370,7 @@ const DiaryContent = styled.div`
     word-break: break-all;
 
     -webkit-line-clamp: ${(props) => (props.$hasImage ? 3 : 5)};
-    max-height: ${(props) => (props.$hasImage ? "4.5em" : "7.5em")};
+    max-height: ${(props) => (props.$hasImage ? "3.0em" : "7.5em")};
     line-height: 1.5em;
 
     &::after {

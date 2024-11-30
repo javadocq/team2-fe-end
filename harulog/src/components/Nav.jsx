@@ -87,13 +87,19 @@ const NavBar = () => {
               <LogoImg src={LogoImage} alt="logo" />
               <Title style={{ marginLeft: "8px" }}>하루로그</Title>
             </Logo>
-            <KeywordContainer>
+            <CategoryContainer>
               {category.map((category) => (
                 <Category
                   key={category.id}
                   onClick={() => {
-                    setSelectedCategoryId(category.id);
-                    scrollToCategorySection();
+                    if (selectedCategoryId !== category.id) {
+                      window.scrollTo(0, 0);
+                      setSelectedCategoryId(category.id);
+                      // scrollToCategorySection();
+                    } else {
+                      setSelectedCategoryId(0);
+                      scrollToCategorySection();
+                    }
                   }}
                   $isSelected={selectedCategoryId === category.id}
                 >
@@ -104,7 +110,7 @@ const NavBar = () => {
                   <CategoryText>{category.categoryName}</CategoryText>
                 </Category>
               ))}
-            </KeywordContainer>
+            </CategoryContainer>
             <SearchBar>
               <SearchInput
                 type="text"
@@ -207,7 +213,7 @@ const LogoImg = styled.img`
   margin-left: 56px;
 `;
 
-const KeywordContainer = styled.div`
+const CategoryContainer = styled.div`
   display: flex;
   align-items: center;
   max-width: 856px;
@@ -223,13 +229,12 @@ const Category = styled.button.attrs((props) => ({
   gap: 8px;
   border: none;
   background-color: ${(props) =>
-    props.isSelected ? "#f0f0f0" : "transparent"};
+    props.$isSelected ? "#FAFAFA" : "transparent"};
   border-bottom: ${(props) =>
-    props.isSelected ? "1px solid #65558f" : "none"};
+    props.$isSelected ? "1px solid #65558f" : "none"};
   cursor: pointer;
   transition: all 0.2s;
   padding: 12px 40px;
-  border-radius: 8px;
 
   &:hover {
     background-color: #f0f0f0;
