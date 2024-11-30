@@ -177,7 +177,7 @@ export default function DailyLog() {
 
     useEffect(() => {
         setRandomCategory(getRandomCategory());
-    }, []); // 컴포넌트 마운트 시 한 번만 실행
+    }, []);
 
     function handleCategorySelect(categoryId) {
         setSelectedCategory(categoryId); 

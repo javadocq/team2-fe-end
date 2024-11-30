@@ -17,6 +17,8 @@ import Music from "../assets/icon_music.svg";
 import Food from "../assets/icon_food.svg";
 import Video from "../assets/icon_video.svg";
 import { BASE_URL } from "../components/BASE_URL";
+import ShowEye from "../assets/icon_showPW.svg";
+import hideEye from "../assets/icon_hidePW.svg";
 const activityImages = [Beverage, Music, Food, Video];
 
 const categoryImages = {
@@ -36,9 +38,12 @@ const DailyDetailPage = () => {
     const [userName, setUserName] = useState("");
     const [showModal, setShowModal] = useState(false);
     const [showTextModal, setShowTextModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [apiText, setApiText] = useState('');
     const [diaryData, setDiaryData] = useState([]);
     const [date, setDate] = useState("");
+    const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [recommend, setRecommend] = useState([]);
     const [views, setViews] = useState(0);
@@ -101,6 +106,29 @@ const DailyDetailPage = () => {
         };
         fetchRecommend();
     }
+
+    const handleDelete = () => {
+        const fetchDelete = async () => {
+            try {
+                const response = await axios.delete(`${BASE_URL}/diaries/${id}`, {data: {
+                    password: password,
+                }});
+                navigate('/');
+            } catch(error) {
+                alert("비밀번호가 맞지 않습니다.")
+            }
+        }
+        fetchDelete();
+    }
+
+    function handleShowPassword() {
+        setShowPassword(!showPassword);
+    }
+
+    function handlePasswordChange(e) {
+        const value = e.target.value;
+        setPassword(value);
+    }
     
 
     return (
@@ -157,6 +185,9 @@ const DailyDetailPage = () => {
                         <WriteButton onClick={() => handleRecommend()}>
                             내일 뭐하지? ✨
                         </WriteButton>
+                        <DeleteButton onClick={() => setShowDeleteModal(true)}>
+                            글 삭제하기
+                        </DeleteButton>
                     </ButtonContainer>
                 </ActionBar>
             </Content>
@@ -180,7 +211,27 @@ const DailyDetailPage = () => {
                         <ModalTextBox>
                             {loading ? <LoadingSpinner /> : apiText}
                         </ModalTextBox>
-                        <ModalText>AI가 재해석한 하루님의 하루 어떠신가요?</ModalText>
+                        <ModalText>AI가 재해석한 {userName}님의 하루 어떠신가요?</ModalText>
+                    </Modal>
+                </ModalOverlay>
+            )}
+
+            {showDeleteModal && (
+                <ModalOverlay onClick={() => setShowDeleteModal(false)}>
+                    <Modal onClick={(e) => e.stopPropagation()}>
+                        <CloseButton onClick={() => setShowDeleteModal(false)}>×</CloseButton>
+                        <ModalTitle>글을 삭제하시겠습니까?</ModalTitle>
+                        <Text>비밀번호</Text>
+                        <Input 
+                            type={showPassword ? "text" : "password"}
+                            onChange={(e) => handlePasswordChange(e)}
+                            placeholder="비밀번호를 입력해주세요."
+                        />
+                        <Eye onClick={handleShowPassword}>{showPassword ? <img src={ShowEye} /> : <img src={hideEye} />}</Eye>
+                        <ButtonBox>
+                            <LeftButton onClick={() => setShowDeleteModal(false)}>취소</LeftButton>
+                            <RightButton onClick={() => handleDelete()}>삭제</RightButton>
+                        </ButtonBox>
                     </Modal>
                 </ModalOverlay>
             )}
@@ -357,7 +408,8 @@ const ViewsCount = styled.div`
 const ButtonContainer = styled.div`
     display: flex;
     justify-content: center;
-    gap: 16px;
+    margin-left : 210px;
+    gap: 20px;
 `;
 
 const WriteButton = styled.button`
@@ -373,7 +425,24 @@ const WriteButton = styled.button`
     font-family: Pretendard;
     font-size: 14px;
     gap: 8px;
+    &:hover {
+        background: #EADDFF;
+    }
+`;
 
+const DeleteButton = styled.button`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 201px;
+    height: 40px;
+    border-radius: 4px;
+    background: white;
+    border: 1px solid #DDD;
+    cursor: pointer;
+    font-family: Pretendard;
+    font-size: 14px;
+    gap: 8px;
     &:hover {
         background: #EADDFF;
     }
@@ -429,14 +498,6 @@ const ModalTitle = styled.h2`
     margin: 0;
 `;
 
-const ModalSemiTitle = styled.h2`
-    color: var(--b100, #333);
-    font-family: Pretendard;
-    font-size: 16px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: normal;
-`;
 
 const ModalImage = styled.img`
     width: 336px;
