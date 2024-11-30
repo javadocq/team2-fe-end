@@ -155,7 +155,6 @@ const MainPage = () => {
               <DiaryActions>
                 <UpButton
                   diaryId={diary.id}
-                  isLiked={like[diary.id]}
                   onLike={handleLike}
                 >
                   추천

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-import UpButton from "../components/UpButton";
 import LoadingSpinner from "../components/LoadingSpinner";
 //import assets
 import Communication from "../assets/icon_communication.svg";
