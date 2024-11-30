@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-import UpButton from "../components/UpButton";
 import LoadingSpinner from "../components/LoadingSpinner";
 //import assets
 import Communication from "../assets/icon_communication.svg";
@@ -17,7 +16,6 @@ import Music from "../assets/icon_music.svg";
 import Food from "../assets/icon_food.svg";
 import Video from "../assets/icon_video.svg";
 import { BASE_URL } from "../components/BASE_URL";
-import Check from "../assets/icon_check.svg";
 import Smile from "../assets/icon_smile.svg";
 import ShowEye from "../assets/icon_showPW.svg";
 import hideEye from "../assets/icon_hidePW.svg";
@@ -184,15 +182,13 @@ const DailyDetailPage = () => {
                     </LikeAndViews>
                     <ButtonContainer>
                         <StyledUpButtonWrapper>
-                            <button
-                                onClick={handleLike}
-                                style={{
-                                    background: isLiked ? "#eaddff" : "white",
-                                }}
-                            >
-                                <img src={isLiked ? Check : Smile} alt="smile" />
+                            <UpButton onClick={handleLike}>
+                                <UpButtonImg
+                                    src={Smile} 
+                                    alt="smile"
+                                />
                                 추천
-                            </button>
+                            </UpButton>
                         </StyledUpButtonWrapper>
                         <WriteButton onClick={() => handleRecommend()}>
                             내일 뭐하지? ✨
@@ -364,18 +360,27 @@ const DrawingImage = styled.img`
     object-fit: contain;
 `;
 
-const DrawingApiBox = styled.div`
-    width: 578px;
-    height: 253px;
-    border: 1px solid #DDDDDD;
-    border-radius: 4px;
-    padding: 16px;
+const UpButton = styled.button`
     display: flex;
-    justify-content: center;
     align-items: center;
-    color: #333;
+    justify-content: center;
+    width: 201px;
+    height: 40px;
+    border-radius: 4px;
+    background: white;
+    border: 1px solid #DDD;
+    cursor: pointer;
+    font-family: Pretendard;
+    font-size: 14px;
+    gap: 8px;
+    &:hover {
+        background: #EADDFF;
+    }
 `;
 
+const UpButtonImg = styled.img`
+    
+`;
 const TextContent = styled.div`
     font-family: "UhBee Seulvely", sans-serif;
     font-size: 16px;
@@ -420,7 +425,6 @@ const ViewsCount = styled.div`
 const ButtonContainer = styled.div`
     display: flex;
     justify-content: center;
-    margin-left : 210px;
     gap: 20px;
 `;
 
@@ -465,7 +469,6 @@ const StyledUpButtonWrapper = styled.div`
         width: 201px !important;
         height: 40px !important;
         flex: none !important;
-        border: 1px solid #333333 !important;
         border-radius: 4px !important;
     }
 `;
@@ -572,6 +575,7 @@ const LeftButton = styled.button`
     gap: 8px;
     border-radius: 8px;
     border: 1px solid var(--Schemes-Primary, #65558F);
+    cursor : pointer;
     background: var(--b0, #FFF);
     color: var(--Schemes-Primary, #65558F);
     text-align: center;
@@ -590,9 +594,11 @@ const RightButton = styled.button`
     justify-content: center;
     align-items: center;
     gap: 8px;
+    cursor : pointer;
     border-radius: 8px;
     background: var(--Schemes-Primary, #65558F);
     box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.08);
+    border : none;
     color: var(--b0, #FFF);
     text-align: center;
     font-family: Pretendard;
