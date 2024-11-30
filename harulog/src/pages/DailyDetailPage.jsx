@@ -33,6 +33,7 @@ const DailyDetailPage = () => {
     const navigate = useNavigate();
     const { id } = useParams();
     const [like, setLike] = useState(false);
+    const [likes, setLikes] = useState(0);
     const [userName, setUserName] = useState("");
     const [showModal, setShowModal] = useState(false);
     const [showTextModal, setShowTextModal] = useState(false);
@@ -50,12 +51,13 @@ const DailyDetailPage = () => {
                 setDate(response.data.created_at);
                 setUserName(response.data.username);
                 setViews(response.data.views);
+                setLikes(response.data.likes);
             } catch (error) {
                 console.error("Error fetching diary:", error);
             }
         };
         fetchDiary();
-    }, [id, like]);
+    }, [id]);
 
     useEffect(() => {
         if (apiText) {
@@ -64,6 +66,7 @@ const DailyDetailPage = () => {
 
     const handleLike = () => {
         setLike((prev) => !prev);
+        setLikes((prev) => prev + 1);
     };
 
     const handleWriteAPI = () => {
@@ -141,7 +144,7 @@ const DailyDetailPage = () => {
     
                 <ActionBar>
                     <LikeAndViews>
-                        <LikeCount>추천 {diaryData.likes}</LikeCount>
+                        <LikeCount>추천 {likes}</LikeCount>
                         <ViewsCount>조회 {views}</ViewsCount>
                     </LikeAndViews>
                     <ButtonContainer>

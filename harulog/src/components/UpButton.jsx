@@ -19,7 +19,6 @@ const UpButton = ({ diaryId, isLiked, onLike, children }) => {
       
       const currentData = queryClient.getQueryData(["diaries"]);
       queryClient.setQueryData(["diaries"], currentData);
-      console.log(queryClient.getQueryData(["diaries"]));
     } catch (error) {
       if (error.response?.status === 404) {
         console.error("Diary not found");
