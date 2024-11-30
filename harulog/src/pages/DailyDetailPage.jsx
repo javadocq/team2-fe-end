@@ -17,6 +17,8 @@ import Music from "../assets/icon_music.svg";
 import Food from "../assets/icon_food.svg";
 import Video from "../assets/icon_video.svg";
 import { BASE_URL } from "../components/BASE_URL";
+import Check from "../assets/icon_check.svg";
+import Smile from "../assets/icon_smile.svg";
 import ShowEye from "../assets/icon_showPW.svg";
 import hideEye from "../assets/icon_hidePW.svg";
 const activityImages = [Beverage, Music, Food, Video];
@@ -34,7 +36,8 @@ const DailyDetailPage = () => {
 
     const navigate = useNavigate();
     const { id } = useParams();
-    const [like, setLike] = useState(false);
+    const [isLiked, setIsLiked] = useState(false);
+    const [likes, setLikes] = useState(0);
     const [userName, setUserName] = useState("");
     const [showModal, setShowModal] = useState(false);
     const [showTextModal, setShowTextModal] = useState(false);
@@ -55,20 +58,27 @@ const DailyDetailPage = () => {
                 setDate(response.data.created_at);
                 setUserName(response.data.username);
                 setViews(response.data.views);
+                setLikes(response.data.likes);
             } catch (error) {
                 console.error("Error fetching diary:", error);
             }
         };
         fetchDiary();
-    }, [id, like]);
+    }, [id]);
 
     useEffect(() => {
         if (apiText) {
         }
     }, [apiText]);
 
-    const handleLike = () => {
-        setLike((prev) => !prev);
+    const handleLike = async () => {
+        try {
+            await axios.patch(`${BASE_URL}/diaries/${id}/likes`);
+            setIsLiked(true);
+            setLikes((prev) => prev + 1);
+        } catch (error) {
+            console.error("Error liking diary:", error);
+        }
     };
 
     const handleWriteAPI = () => {
@@ -169,18 +179,20 @@ const DailyDetailPage = () => {
     
                 <ActionBar>
                     <LikeAndViews>
-                        <LikeCount>추천 {diaryData.likes}</LikeCount>
+                        <LikeCount>추천 {likes}</LikeCount>
                         <ViewsCount>조회 {views}</ViewsCount>
                     </LikeAndViews>
                     <ButtonContainer>
                         <StyledUpButtonWrapper>
-                            <UpButton 
-                                diaryId={id}
-                                isLiked={like} 
-                                onLike={handleLike}
+                            <button
+                                onClick={handleLike}
+                                style={{
+                                    background: isLiked ? "#eaddff" : "white",
+                                }}
                             >
+                                <img src={isLiked ? Check : Smile} alt="smile" />
                                 추천
-                            </UpButton>
+                            </button>
                         </StyledUpButtonWrapper>
                         <WriteButton onClick={() => handleRecommend()}>
                             내일 뭐하지? ✨
@@ -453,6 +465,8 @@ const StyledUpButtonWrapper = styled.div`
         width: 201px !important;
         height: 40px !important;
         flex: none !important;
+        border: 1px solid #333333 !important;
+        border-radius: 4px !important;
     }
 `;
 
