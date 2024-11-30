@@ -2,20 +2,11 @@ import { BeatLoader } from "react-spinners";
 import styled from "styled-components";
 
 const SpinnerContainer = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 50;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(4px);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 `;
-
 const LoadingSpinner = () => {
     return (
         <SpinnerContainer>

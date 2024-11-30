@@ -205,8 +205,16 @@ const DailyDetailPage = () => {
                     <Modal onClick={(e) => e.stopPropagation()}>
                         <CloseButton onClick={() => setShowModal(false)}>×</CloseButton>
                         <ModalTitle>오늘 하루도 고생 많았어요</ModalTitle>
-                        {loading ? <LoadingSpinner /> : <ModalImage src={activityImages[recommend.recommended_category_id-1]} alt="activity suggestion" />}
-                        <ModalText>{recommend.recommended_content}</ModalText>
+                        <ModalContentBox>
+                            {!loading ? (
+                                <LoadingSpinner />
+                            ) : (
+                                <>
+                                    <ModalImage src={activityImages[recommend.recommended_category_id-1]} alt="activity suggestion" />
+                                    <ModalText>{recommend.recommended_content}</ModalText>
+                                </>
+                            )}
+                        </ModalContentBox>
                     </Modal>
                 </ModalOverlay>
             )}
@@ -219,7 +227,7 @@ const DailyDetailPage = () => {
                         <ModalTextBox>
                             {loading ? <LoadingSpinner /> : apiText}
                         </ModalTextBox>
-                        <ModalText>AI가 재해석한 {userName}님의 하루 어떠신가요?</ModalText>
+                        <ModalText>AI가 재해석한 하루님의 하루 어떠신가요?</ModalText>
                     </Modal>
                 </ModalOverlay>
             )}
@@ -261,7 +269,7 @@ const Container = styled.div`
 const Content = styled.div`
     width: 880px;
     flex-direction: column;
-    margin-top: 8px; // 더 줄임
+    margin-top: 8px;
 `;
 
 const DrawingBox = styled.div`
@@ -621,6 +629,16 @@ const ModalTextBox = styled.div`
     white-space: pre-wrap;
     overflow-y: auto;
     position: relative;
+`;
+
+const ModalContentBox = styled.div`
+    width: 578px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    position: relative;
+    min-height: 350px;
 `;
 
 export default DailyDetailPage;
